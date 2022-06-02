@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package gocalcharger.srv;
+
+option go_package = "proto/gocalcharger";
+
+service GocalChargerServer {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc DownloadFile(DownloadFileRequest) returns (stream DownloadFileReply) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
+
+// The request message containing the file's information.
+message DownloadFileRequest {
+  string clientName = 1;
+  string fileName = 2;
+  string filePath = 3;
+}
+
+// The request message containing the file.
+message DownloadFileReply {
+  bytes filePart = 2;
+  int32 process = 3;
+  int32 total = 4;
+}
