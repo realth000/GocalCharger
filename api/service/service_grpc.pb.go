@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.0--rc1
-// source: gocalcharger.proto
+// source: service.proto
 
-package gocalcharger
+package service
 
 import (
 	context "context"
@@ -36,7 +36,7 @@ func NewGocalChargerServerClient(cc grpc.ClientConnInterface) GocalChargerServer
 
 func (c *gocalChargerServerClient) SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
 	out := new(HelloReply)
-	err := c.cc.Invoke(ctx, "/gocalcharger.srv.GocalChargerServer/SayHello", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gocalcharger.service.GocalChargerServer/SayHello", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (c *gocalChargerServerClient) SayHello(ctx context.Context, in *HelloReques
 }
 
 func (c *gocalChargerServerClient) DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (GocalChargerServer_DownloadFileClient, error) {
-	stream, err := c.cc.NewStream(ctx, &GocalChargerServer_ServiceDesc.Streams[0], "/gocalcharger.srv.GocalChargerServer/DownloadFile", opts...)
+	stream, err := c.cc.NewStream(ctx, &GocalChargerServer_ServiceDesc.Streams[0], "/gocalcharger.service.GocalChargerServer/DownloadFile", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func _GocalChargerServer_SayHello_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/gocalcharger.srv.GocalChargerServer/SayHello",
+		FullMethod: "/gocalcharger.service.GocalChargerServer/SayHello",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GocalChargerServerServer).SayHello(ctx, req.(*HelloRequest))
@@ -150,7 +150,7 @@ func (x *gocalChargerServerDownloadFileServer) Send(m *DownloadFileReply) error 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var GocalChargerServer_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gocalcharger.srv.GocalChargerServer",
+	ServiceName: "gocalcharger.service.GocalChargerServer",
 	HandlerType: (*GocalChargerServerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -165,5 +165,5 @@ var GocalChargerServer_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "gocalcharger.proto",
+	Metadata: "service.proto",
 }

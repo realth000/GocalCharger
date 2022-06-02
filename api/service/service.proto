@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package gocalcharger.srv;
+package gocalcharger.service;
 
-option go_package = "proto/gocalcharger";
+option go_package = "gocalcharger/api/service";
 
 service GocalChargerServer {
   rpc SayHello (HelloRequest) returns (HelloReply) {}
