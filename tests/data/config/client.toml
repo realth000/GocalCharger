@@ -1,0 +1,11 @@
+server_url = "localhost"
+server_port = 3080
+client_name = "test_client"
+ssl = true
+ssl_cert = "./tests/data/ssl/client.pem"
+ssl_key = "./tests/data/ssl/client.key"
+ssl_ca_cert = "./tests/data/ssl/ca.pem"
+mutual_auth = true
+say_hello = true
+download_file = false
+download_file_path = "./tests/data/server_rootfs/test_data"

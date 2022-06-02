@@ -1,0 +1,6 @@
+port = 3080
+permit_files = "./tests/data/server_rootfs/permit"
+ssl = true
+ssl_cert = "./tests/data/ssl/server.pem"
+ssl_key = "./tests/data/ssl/server.key"
+ssl_ca_cert = "./tests/data/ssl/ca.pem"
