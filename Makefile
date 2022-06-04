@@ -1,5 +1,5 @@
 GO ?= go
-SOURCE_GUI = gui/main.go
+SOURCE_GUI = gocalcharger/gui
 SOURCE_CMD_SERVER = cmd/server/server.go
 SOURCE_CMD_CLIENT = cmd/client/client.go
 TARGET_GUI = GocalChargerGui
