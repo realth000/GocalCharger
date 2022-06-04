@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	cConfig "gocalcharger/client/config"
+	"gocalcharger/gui/server"
 	"gocalcharger/gui/tabs"
 	sConfig "gocalcharger/server/config"
 	"log"
@@ -72,5 +73,7 @@ func main() {
 			updateTime()
 		}
 	}()
+
+	go server.StartServer()
 	a.Run()
 }

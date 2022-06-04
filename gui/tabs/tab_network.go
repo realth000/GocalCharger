@@ -18,26 +18,26 @@ var (
 
 // Server configs
 var (
-	serverPort        = binding.NewString()
-	serverPermitFiles = binding.NewString()
-	serverSSLEnabled  = binding.NewBool()
-	serverSSLCert     = binding.NewString()
-	serverSSLKey      = binding.NewString()
-	serverCACert      = binding.NewString()
+	ServerPort        = binding.NewString()
+	ServerPermitFiles = binding.NewString()
+	ServerSSLEnabled  = binding.NewBool()
+	ServerSSLCert     = binding.NewString()
+	ServerSSLKey      = binding.NewString()
+	ServerCACert      = binding.NewString()
 )
 
 // Client configs
 var (
-	clientRemoteServerIP      = binding.NewString()
-	clientRemoteServerPort    = binding.NewString()
-	clientName                = binding.NewString()
-	clientSSLEnable           = binding.NewBool()
-	clientSSLCert             = binding.NewString()
-	clientSSLKey              = binding.NewString()
-	clientSSLCACert           = binding.NewString()
-	clientSSLMutualAuth       = binding.NewBool()
-	clientSSLDownloadFile     = binding.NewBool()
-	clientSSLDownloadFilePath = binding.NewString()
+	ClientRemoteServerIP      = binding.NewString()
+	ClientRemoteServerPort    = binding.NewString()
+	ClientName                = binding.NewString()
+	ClientSSLEnable           = binding.NewBool()
+	ClientSSLCert             = binding.NewString()
+	ClientSSLKey              = binding.NewString()
+	ClientSSLCACert           = binding.NewString()
+	ClientSSLMutualAuth       = binding.NewBool()
+	ClientSSLDownloadFile     = binding.NewBool()
+	ClientSSLDownloadFilePath = binding.NewString()
 )
 
 // SSL control
@@ -45,7 +45,7 @@ var (
 	serverSSLCheck    *widget.Check
 	serverCertEntry   *widget.Entry
 	serverKeyEntry    *widget.Entry
-	serverCACertEntry *widget.Entry
+	ServerCACertEntry *widget.Entry
 	clientSSLCheck    *widget.Check
 	clientCertEntry   *widget.Entry
 	clientKeyEntry    *widget.Entry
@@ -72,17 +72,17 @@ func makeServerNetworkConfigArea() fyne.CanvasObject {
 }
 
 func makeServerSSLConfigArea() *fyne.Container {
-	serverSSLCheck = widget.NewCheck("Enable SSL", func(b bool) { _ = serverSSLEnabled.Set(b); updateServerSSL() })
+	serverSSLCheck = widget.NewCheck("Enable SSL", func(b bool) { _ = ServerSSLEnabled.Set(b); updateServerSSL() })
 	certLabel := widget.NewLabel("Certificate path")
-	serverCertEntry = widget.NewEntryWithData(serverSSLCert)
+	serverCertEntry = widget.NewEntryWithData(ServerSSLCert)
 	serverCertEntry.SetPlaceHolder("*.pem")
 	keyLabel := widget.NewLabel("Private key path")
-	serverKeyEntry = widget.NewEntryWithData(serverSSLKey)
+	serverKeyEntry = widget.NewEntryWithData(ServerSSLKey)
 	serverKeyEntry.SetPlaceHolder("*.key")
 	caCertLabel := widget.NewLabel("CA certificate path")
-	serverCACertEntry = widget.NewEntryWithData(serverCACert)
-	serverCACertEntry.SetPlaceHolder("*.pem")
-	return container.NewVBox(serverSSLCheck, container.New(layout.NewFormLayout(), certLabel, serverCertEntry, keyLabel, serverKeyEntry, caCertLabel, serverCACertEntry))
+	ServerCACertEntry = widget.NewEntryWithData(ServerCACert)
+	ServerCACertEntry.SetPlaceHolder("*.pem")
+	return container.NewVBox(serverSSLCheck, container.New(layout.NewFormLayout(), certLabel, serverCertEntry, keyLabel, serverKeyEntry, caCertLabel, ServerCACertEntry))
 }
 
 func newClientControlArea() fyne.CanvasObject {
@@ -96,7 +96,7 @@ func newClientControlArea() fyne.CanvasObject {
 }
 
 func updateServerSSL() {
-	b, _ := serverSSLEnabled.Get()
+	b, _ := ServerSSLEnabled.Get()
 	if b {
 		if serverCertEntry != nil {
 			serverCertEntry.Enable()
@@ -104,8 +104,8 @@ func updateServerSSL() {
 		if serverKeyEntry != nil {
 			serverKeyEntry.Enable()
 		}
-		if serverCACertEntry != nil {
-			serverCACertEntry.Enable()
+		if ServerCACertEntry != nil {
+			ServerCACertEntry.Enable()
 		}
 	} else {
 		if serverCertEntry != nil {
@@ -114,8 +114,8 @@ func updateServerSSL() {
 		if serverKeyEntry != nil {
 			serverKeyEntry.Disable()
 		}
-		if serverCACertEntry != nil {
-			serverCACertEntry.Disable()
+		if ServerCACertEntry != nil {
+			ServerCACertEntry.Disable()
 		}
 	}
 }
@@ -129,21 +129,21 @@ func makeClientNetworkConfigArea() fyne.CanvasObject {
 }
 
 func makeClientSSLConfigArea() fyne.CanvasObject {
-	clientSSLCheck = widget.NewCheck("Enable SSL", func(b bool) { clientSSLEnable.Set(b); updateClientSSL() })
+	clientSSLCheck = widget.NewCheck("Enable SSL", func(b bool) { ClientSSLEnable.Set(b); updateClientSSL() })
 	certLabel := widget.NewLabel("Certificate path")
-	clientCertEntry = widget.NewEntryWithData(clientSSLCert)
+	clientCertEntry = widget.NewEntryWithData(ClientSSLCert)
 	clientCertEntry.SetPlaceHolder("*.pem")
 	keyLabel := widget.NewLabel("Private key path")
-	clientKeyEntry = widget.NewEntryWithData(clientSSLKey)
+	clientKeyEntry = widget.NewEntryWithData(ClientSSLKey)
 	clientKeyEntry.SetPlaceHolder("*.key")
 	caCertLabel := widget.NewLabel("CA certificate path")
-	clientCACertEntry = widget.NewEntryWithData(clientSSLCACert)
+	clientCACertEntry = widget.NewEntryWithData(ClientSSLCACert)
 	clientCACertEntry.SetPlaceHolder("*.pem")
 	return container.NewVBox(clientSSLCheck, container.New(layout.NewFormLayout(), certLabel, clientCertEntry, keyLabel, clientKeyEntry, caCertLabel, clientCACertEntry))
 }
 
 func updateClientSSL() {
-	b, _ := clientSSLEnable.Get()
+	b, _ := ClientSSLEnable.Get()
 	if b {
 		if clientCertEntry != nil {
 			clientCertEntry.Enable()
@@ -186,25 +186,25 @@ func reloadClientConfig() {
 }
 
 func testConnectServer() {
-	fmt.Println("test connect Server")
+
 }
 
 func ApplyConfigs(s sConfig.ServerConfig, c cConfig.ClientConfig) {
-	_ = serverPort.Set(strconv.Itoa(int(s.Port)))
-	_ = serverPermitFiles.Set(s.PermitFiles)
-	_ = serverSSLEnabled.Set(s.SSL)
-	_ = serverSSLCert.Set(s.SSLCert)
-	_ = serverSSLKey.Set(s.SSLKey)
-	_ = serverCACert.Set(s.SSLCACert)
+	_ = ServerPort.Set(strconv.Itoa(int(s.Port)))
+	_ = ServerPermitFiles.Set(s.PermitFiles)
+	_ = ServerSSLEnabled.Set(s.SSL)
+	_ = ServerSSLCert.Set(s.SSLCert)
+	_ = ServerSSLKey.Set(s.SSLKey)
+	_ = ServerCACert.Set(s.SSLCACert)
 
-	_ = clientRemoteServerIP.Set(c.ServerUrl)
-	_ = clientRemoteServerPort.Set(strconv.Itoa(int(c.ServerPort)))
-	_ = clientName.Set(c.ClientName)
-	_ = clientSSLEnable.Set(c.SSL)
-	_ = clientSSLCert.Set(c.SSLCert)
-	_ = clientSSLKey.Set(c.SSLKey)
-	_ = clientSSLCACert.Set(c.SSLCACert)
-	_ = clientSSLMutualAuth.Set(c.MutualAuth)
-	_ = clientSSLDownloadFile.Set(c.DownloadFile)
-	_ = clientSSLDownloadFilePath.Set(c.DownloadFilePath)
+	_ = ClientRemoteServerIP.Set(c.ServerUrl)
+	_ = ClientRemoteServerPort.Set(strconv.Itoa(int(c.ServerPort)))
+	_ = ClientName.Set(c.ClientName)
+	_ = ClientSSLEnable.Set(c.SSL)
+	_ = ClientSSLCert.Set(c.SSLCert)
+	_ = ClientSSLKey.Set(c.SSLKey)
+	_ = ClientSSLCACert.Set(c.SSLCACert)
+	_ = ClientSSLMutualAuth.Set(c.MutualAuth)
+	_ = ClientSSLDownloadFile.Set(c.DownloadFile)
+	_ = ClientSSLDownloadFilePath.Set(c.DownloadFilePath)
 }
