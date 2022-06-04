@@ -21,7 +21,8 @@ func main() {
 	w.Resize(fyne.NewSize(800, 600))
 	downloadTab := tabs.NewDownloadTab()
 	networkTab := tabs.NewNetworkTab()
-	tab := container.NewAppTabs(downloadTab, networkTab)
+	settingsTab := tabs.NewSettingsTab()
+	tab := container.NewAppTabs(downloadTab, networkTab, settingsTab)
 	w.SetContent(tab)
 	w.Show()
 
