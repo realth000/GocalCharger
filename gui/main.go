@@ -52,6 +52,10 @@ func testApplyConfig() {
 }
 
 func main() {
+	// Test loading configs.
+	testLoadConfig()
+	testApplyConfig()
+
 	a := app.New()
 	w := a.NewWindow("GocalChargerGui")
 	w.Resize(fyne.NewSize(800, 600))
@@ -61,9 +65,6 @@ func main() {
 	tab := container.NewAppTabs(downloadTab, networkTab, settingsTab)
 	w.SetContent(tab)
 
-	// Test loading configs.
-	testLoadConfig()
-	testApplyConfig()
 	w.Show()
 
 	go func() {
