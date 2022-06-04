@@ -66,13 +66,15 @@ func newServerControlArea() fyne.CanvasObject {
 
 func makeServerNetworkConfigArea() fyne.CanvasObject {
 	portLabel := widget.NewLabel("Localhost port")
-	portEntry := widget.NewEntry()
+	portEntry := widget.NewEntryWithData(ServerPort)
 	portHBox := container.New(layout.NewFormLayout(), portLabel, portEntry)
 	return portHBox
 }
 
 func makeServerSSLConfigArea() *fyne.Container {
 	serverSSLCheck = widget.NewCheck("Enable SSL", func(b bool) { _ = ServerSSLEnabled.Set(b); updateServerSSL() })
+	b, _ := ServerSSLEnabled.Get()
+	serverSSLCheck.SetChecked(b)
 	certLabel := widget.NewLabel("Certificate path")
 	serverCertEntry = widget.NewEntryWithData(ServerSSLCert)
 	serverCertEntry.SetPlaceHolder("*.pem")
@@ -122,14 +124,16 @@ func updateServerSSL() {
 
 func makeClientNetworkConfigArea() fyne.CanvasObject {
 	serverIPLabel := widget.NewLabel("Remote server IP")
-	serverIPEntry := widget.NewEntry()
+	serverIPEntry := widget.NewEntryWithData(ClientRemoteServerIP)
 	serverPortLabel := widget.NewLabel("Remote server port")
-	serverPortEntry := widget.NewEntry()
+	serverPortEntry := widget.NewEntryWithData(ClientRemoteServerPort)
 	return container.New(layout.NewFormLayout(), serverIPLabel, serverIPEntry, serverPortLabel, serverPortEntry)
 }
 
 func makeClientSSLConfigArea() fyne.CanvasObject {
-	clientSSLCheck = widget.NewCheck("Enable SSL", func(b bool) { ClientSSLEnable.Set(b); updateClientSSL() })
+	clientSSLCheck = widget.NewCheck("Enable SSL", func(b bool) { _ = ClientSSLEnable.Set(b); updateClientSSL() })
+	b, _ := ClientSSLEnable.Get()
+	clientSSLCheck.SetChecked(b)
 	certLabel := widget.NewLabel("Certificate path")
 	clientCertEntry = widget.NewEntryWithData(ClientSSLCert)
 	clientCertEntry.SetPlaceHolder("*.pem")
