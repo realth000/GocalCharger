@@ -5,11 +5,17 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/data/validation"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	cConfig "gocalcharger/client/config"
 	sConfig "gocalcharger/server/config"
 	"strconv"
+)
+
+const (
+	regexpIP   = `^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|localhost$`
+	regexpPort = `^((6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|[0-5]?[0-9]{0,4})$`
 )
 
 var (
@@ -67,6 +73,7 @@ func newServerControlArea() fyne.CanvasObject {
 func makeServerNetworkConfigArea() fyne.CanvasObject {
 	portLabel := widget.NewLabel("Localhost port")
 	portEntry := widget.NewEntryWithData(ServerPort)
+	portEntry.Validator = validation.NewRegexp(regexpPort, "Port need to be in (0,65535]")
 	portHBox := container.New(layout.NewFormLayout(), portLabel, portEntry)
 	return portHBox
 }
@@ -125,8 +132,10 @@ func updateServerSSL() {
 func makeClientNetworkConfigArea() fyne.CanvasObject {
 	serverIPLabel := widget.NewLabel("Remote server IP")
 	serverIPEntry := widget.NewEntryWithData(ClientRemoteServerIP)
+	serverIPEntry.Validator = validation.NewRegexp(regexpIP, "Not a valid IP")
 	serverPortLabel := widget.NewLabel("Remote server port")
 	serverPortEntry := widget.NewEntryWithData(ClientRemoteServerPort)
+	serverPortEntry.Validator = validation.NewRegexp(regexpPort, "Port need to be in (0,65535]")
 	return container.New(layout.NewFormLayout(), serverIPLabel, serverIPEntry, serverPortLabel, serverPortEntry)
 }
 
