@@ -20,17 +20,6 @@ const (
 	DownloadUnknown
 )
 
-var (
-	downloadStateToString = map[int]string{
-		DownloadNotStarted: "Not started",
-		Downloading:        "Downloading...",
-		DownloadPaused:     "Paused",
-		DownloadFinished:   "Finished",
-		DownloadCanceled:   "Canceled",
-		DownloadUnknown:    "Unknown state",
-	}
-)
-
 type downloadItem struct {
 	Name       string
 	Icon       string
@@ -41,12 +30,22 @@ type downloadItem struct {
 	Dir        string
 	State      downloadState
 	Err        error
+	RowID      uint
 }
 
 var (
-	isDownloading = false
-	Items         []downloadItem
-	list          *widget.List
+	index                 = uint(0)
+	isDownloading         = false
+	Items                 []downloadItem
+	list                  *widget.List
+	downloadStateToString = map[int]string{
+		DownloadNotStarted: "Not started",
+		Downloading:        "Downloading...",
+		DownloadPaused:     "Paused",
+		DownloadFinished:   "Finished",
+		DownloadCanceled:   "Canceled",
+		DownloadUnknown:    "Unknown state",
+	}
 )
 
 func newDownloadListArea() *widget.List {
@@ -55,6 +54,10 @@ func newDownloadListArea() *widget.List {
 }
 
 func newDownloadItemArea() fyne.CanvasObject {
+	if countDownloadItems()-1 < 0 {
+		return &widget.BaseWidget{}
+	}
+	defer func() { index++ }()
 	newItem := Items[countDownloadItems()-1]
 	//icon := widget.NewLabel(newItem.Name)
 
@@ -68,14 +71,15 @@ func newDownloadItemArea() fyne.CanvasObject {
 	statusLabel := widget.NewLabel("downloading...")
 	statusVBox := container.NewVBox(layout.NewSpacer(), downloadProgressBar, statusLabel, layout.NewSpacer())
 
-	startButton := widget.NewButton("start", startDownload)
-	cancelButton := widget.NewButton("cancel", cancelDownload)
-	openDirButton := widget.NewButton("open", openDir)
+	startButton := widget.NewButton("start", func() { startDownload(index) })
+	cancelButton := widget.NewButton("cancel", func() { cancelDownload(index) })
+	openDirButton := widget.NewButton("open", func() { openDir(index) })
 	listControlBox := container.NewHBox(startButton, cancelButton, openDirButton)
 
 	borderRightHBox := container.NewHBox(time, statusVBox, container.NewVBox(layout.NewSpacer(), listControlBox, layout.NewSpacer()))
 
 	//return container.NewBorder(nil, nil, icon, borderRightHBox, lVBox)
+	newItem.RowID = index
 	return container.NewBorder(nil, nil, nil, borderRightHBox, lVBox)
 }
 
@@ -118,48 +122,61 @@ func newDownloadControlArea() *fyne.Container {
 	label := widget.NewLabel("Downloading:")
 	totalProgressBar := widget.NewProgressBar()
 	totalProgressBar.Resize(fyne.NewSize(1000, 100))
-	startButton := widget.NewButton("Start All", startDownload)
-	pauseButton := widget.NewButton("Pause All", pauseDownload)
-	cancelButton := widget.NewButton("Cancel ALl", cancelDownload)
+	startButton := widget.NewButton("Start All", startDownloadAll)
+	pauseButton := widget.NewButton("Pause All", pauseDownloadAll)
+	cancelButton := widget.NewButton("Cancel ALl", cancelDownloadAll)
 	controlHBox := container.NewBorder(nil, nil, label, container.NewHBox(startButton, pauseButton, cancelButton), totalProgressBar)
 	return controlHBox
 }
 
 func NewDownloadTab() *container.TabItem {
 	controlArea := newDownloadControlArea()
-	Items = append(Items, downloadItem{
-		Name:       "123",
-		Icon:       "icon",
-		Url:        url.URL{},
-		Size:       1,
-		TotalSize:  10,
-		RemainTime: "--:--:--",
-		Dir:        "dir",
-		State:      0,
-		Err:        nil,
-	})
-	listArea := newDownloadListArea()
 
+	listArea := newDownloadListArea()
+	//Items = append(Items, downloadItem{
+	//	Name:       "123",
+	//	Icon:       "icon",
+	//	Url:        url.URL{},
+	//	Size:       1,
+	//	TotalSize:  10,
+	//	RemainTime: "--:--:--",
+	//	Dir:        "dir",
+	//	State:      0,
+	//	Err:        nil,
+	//})
+
+	// TODO: Handle empty list.
 	downloadTab := container.NewTabItem("Download", container.NewVBox(controlArea, listArea))
-	fmt.Println(listArea.CreateItem())
-	fmt.Println(listArea.CreateItem())
+	//downloadTab := container.NewTabItem("Download", container.NewVBox(controlArea))
 	return downloadTab
 }
 
-func pauseDownload() {
-	fmt.Println("Download paused")
+func startDownloadAll() {
+
 }
 
-func startDownload() {
-	fmt.Println("Download continued")
+func pauseDownloadAll() {
+
 }
 
-func cancelDownload() {
-	fmt.Println("Download canceled.")
+func cancelDownloadAll() {
+
 }
 
-func openDir() {
-	fmt.Println("Open dir")
+func pauseDownload(id uint) {
+	fmt.Println("Download paused", id)
+}
+
+func startDownload(id uint) {
+	fmt.Println("Download continued", id)
+}
+
+func cancelDownload(id uint) {
+	fmt.Println("Download canceled.", id)
+}
+
+func openDir(id uint) {
+	fmt.Println("Open dir", id)
 }
 
 func countDownloadItems() int {
