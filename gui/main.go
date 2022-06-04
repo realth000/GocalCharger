@@ -10,8 +10,8 @@ import (
 
 func updateTime() {
 	if len(tabs.Items) > 0 {
-		tabs.Items[0].RemainTime = time.Now().Format("Time: 03:04:05")
-		tabs.Update()
+		//tabs.Items[len(tabs.Items)-1].RemainTime = time.Now().Format("Time: 03:04:05")
+		//tabs.Update()
 	}
 }
 

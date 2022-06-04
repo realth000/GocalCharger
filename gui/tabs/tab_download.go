@@ -7,6 +7,9 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"net/url"
+	"runtime"
+	"strconv"
+	"strings"
 )
 
 type downloadState = int
@@ -30,11 +33,11 @@ type downloadItem struct {
 	Dir        string
 	State      downloadState
 	Err        error
-	RowID      uint
+	RowID      int
 }
 
 var (
-	index                 = uint(0)
+	globalIndex           int
 	isDownloading         = false
 	Items                 []downloadItem
 	list                  *widget.List
@@ -54,10 +57,21 @@ func newDownloadListArea() *widget.List {
 }
 
 func newDownloadItemArea() fyne.CanvasObject {
-	if countDownloadItems()-1 < 0 {
+	if countDownloadItems() < 1 {
 		return &widget.BaseWidget{}
 	}
-	defer func() { index++ }()
+	defer func() {
+		pc, _, _, _ := runtime.Caller(2)
+		if strings.HasSuffix(runtime.FuncForPC(pc).Name(), "Refresh") {
+			return
+		}
+		if globalIndex >= countDownloadItems() {
+			globalIndex = 0
+		} else {
+			globalIndex += 1
+		}
+	}()
+	currentIndex := globalIndex
 	newItem := Items[countDownloadItems()-1]
 	//icon := widget.NewLabel(newItem.Name)
 
@@ -71,15 +85,15 @@ func newDownloadItemArea() fyne.CanvasObject {
 	statusLabel := widget.NewLabel("downloading...")
 	statusVBox := container.NewVBox(layout.NewSpacer(), downloadProgressBar, statusLabel, layout.NewSpacer())
 
-	startButton := widget.NewButton("start", func() { startDownload(index) })
-	cancelButton := widget.NewButton("cancel", func() { cancelDownload(index) })
-	openDirButton := widget.NewButton("open", func() { openDir(index) })
+	startButton := widget.NewButton("start", func() { startDownload(currentIndex) })
+	cancelButton := widget.NewButton("cancel", func() { cancelDownload(currentIndex) })
+	openDirButton := widget.NewButton("open", func() { openDir(currentIndex) })
 	listControlBox := container.NewHBox(startButton, cancelButton, openDirButton)
 
 	borderRightHBox := container.NewHBox(time, statusVBox, container.NewVBox(layout.NewSpacer(), listControlBox, layout.NewSpacer()))
 
 	//return container.NewBorder(nil, nil, icon, borderRightHBox, lVBox)
-	newItem.RowID = index
+	newItem.RowID = currentIndex
 	return container.NewBorder(nil, nil, nil, borderRightHBox, lVBox)
 }
 
@@ -139,9 +153,11 @@ func NewDownloadTab() *container.TabItem {
 	return downloadTab
 }
 
+var c = 1
+
 func addDownload() {
 	Items = append(Items, downloadItem{
-		Name:       "123",
+		Name:       strconv.Itoa(c),
 		Icon:       "icon",
 		Url:        url.URL{},
 		Size:       1,
@@ -151,6 +167,9 @@ func addDownload() {
 		State:      0,
 		Err:        nil,
 	})
+	c++
+	//globalIndex = 0
+	Update()
 }
 
 func startDownloadAll() {
@@ -165,19 +184,19 @@ func cancelDownloadAll() {
 
 }
 
-func pauseDownload(id uint) {
+func pauseDownload(id int) {
 	fmt.Println("Download paused", id)
 }
 
-func startDownload(id uint) {
+func startDownload(id int) {
 	fmt.Println("Download continued", id)
 }
 
-func cancelDownload(id uint) {
+func cancelDownload(id int) {
 	fmt.Println("Download canceled.", id)
 }
 
-func openDir(id uint) {
+func openDir(id int) {
 	fmt.Println("Open dir", id)
 }
 
