@@ -1,6 +1,7 @@
 package tabs
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -34,7 +35,8 @@ func newServerControlArea() fyne.CanvasObject {
 	netConfig := makeServerNetworkConfigArea()
 	sslConfig := makeServerSSLConfigArea()
 	updateServerSSL()
-	return widget.NewCard("Server", "Server network configuration", container.NewVBox(netConfig, sslConfig))
+	applyButton := widget.NewButton("Apply", reloadServerConfig)
+	return widget.NewCard("Server", "Server network configuration", container.NewVBox(netConfig, sslConfig, container.NewHBox(applyButton)))
 }
 
 func makeServerNetworkConfigArea() fyne.CanvasObject {
@@ -63,7 +65,8 @@ func newClientControlArea() fyne.CanvasObject {
 	netConfig := makeClientNetworkConfigArea()
 	sslConfig := makeClientSSLConfigArea()
 	updateClientSSL()
-	return widget.NewCard("Client", "Client network configuration", container.NewVBox(netConfig, sslConfig))
+	applyButton := widget.NewButton("Apply", reloadClientConfig)
+	return widget.NewCard("Client", "Client network configuration", container.NewVBox(netConfig, sslConfig, container.NewHBox(applyButton)))
 }
 
 func updateServerSSL() {
@@ -143,6 +146,14 @@ func NewNetworkTab() *container.TabItem {
 	return networkTab
 }
 
+func reloadServerConfig() {
+	fmt.Println("reload server network config")
+}
+
 func SetServerSSL(b bool) {
 	serverSSLCheck.SetChecked(b)
+}
+
+func reloadClientConfig() {
+	fmt.Println("reload client network config")
 }
