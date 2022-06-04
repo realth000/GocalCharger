@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	cConfig "gocalcharger/client/config"
+	"gocalcharger/gui/action"
 	sConfig "gocalcharger/server/config"
 	"strconv"
 )
@@ -57,6 +58,8 @@ var (
 	clientKeyEntry    *widget.Entry
 	clientCACertEntry *widget.Entry
 )
+
+var ClientActionChanel = make(chan action.ClientAction, 1)
 
 func init() {
 	_ = serverStatus.Set("closed")
@@ -199,7 +202,8 @@ func reloadClientConfig() {
 }
 
 func testConnectServer() {
-
+	name, _ := ClientName.Get()
+	ClientActionChanel <- action.ClientAction{ActionName: action.ClientSayHello, ActionArgs: action.ClientSayHelloArgs{ClientName: name}}
 }
 
 func ApplyConfigs(s sConfig.ServerConfig, c cConfig.ClientConfig) {

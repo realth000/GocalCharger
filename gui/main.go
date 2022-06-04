@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	cConfig "gocalcharger/client/config"
+	"gocalcharger/gui/client"
 	"gocalcharger/gui/server"
 	"gocalcharger/gui/tabs"
 	sConfig "gocalcharger/server/config"
@@ -73,7 +74,7 @@ func main() {
 			updateTime()
 		}
 	}()
-
+	client.StartReceivingChannels()
 	go server.StartServer()
 	a.Run()
 }
