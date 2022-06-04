@@ -59,7 +59,15 @@ func SayHello(clientName string) {
 
 	r, err := say_hello.SayHello(conn, updateClientName(clientName))
 	if err != nil {
-		log.Fatalf("error greeting: %v\n", err)
+		log.Printf("error greeting: %v\n", err)
+		CallbackChannel <- action.ClientActionCallback{
+			CallbackName: action.ClientSayHelloFailed,
+			CallbackArgs: action.ClientSayHelloCallbackArgs{
+				ServerTarget: conn.Target(),
+				Error:        err,
+			},
+		}
+		return
 	}
 	log.Printf("successful greet: %s", r.Message)
 	CallbackChannel <- action.ClientActionCallback{

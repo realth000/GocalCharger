@@ -25,6 +25,7 @@ var (
 	clientConfig          cConfig.ClientConfig
 	clientCallbackChannel = &client.CallbackChannel
 	mainWindow            fyne.Window
+	mainApp               fyne.App
 )
 
 func updateTime() {
@@ -60,7 +61,13 @@ func StartReceivingChannels() {
 	for {
 		select {
 		case x := <-*clientCallbackChannel:
-			go handleClientSayHelloSuccess(x.CallbackArgs.(action.ClientSayHelloCallbackArgs))
+			switch x.CallbackName {
+			case action.ClientSayHelloSuccess:
+				go handleClientSayHelloSuccess(x.CallbackArgs.(action.ClientSayHelloCallbackArgs))
+			case action.ClientSayHelloFailed:
+				go handleClientSayHelloFailed(x.CallbackArgs.(action.ClientSayHelloCallbackArgs))
+			}
+
 		}
 	}
 }
@@ -71,7 +78,9 @@ func main() {
 	testApplyConfig()
 
 	a := app.New()
+	mainApp = a
 	w := a.NewWindow("GocalChargerGui")
+	w.SetMaster()
 	mainWindow = w
 	w.Resize(fyne.NewSize(800, 600))
 	downloadTab := tabs.NewDownloadTab()

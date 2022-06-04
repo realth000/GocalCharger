@@ -24,7 +24,7 @@ type ClientActionCallbackName = string
 
 const (
 	ClientSayHelloSuccess ClientActionCallbackName = "SayHelloSuccess"
-	ClientSayHelloTimeOut ClientActionCallbackName = "SayHelloTimeout"
+	ClientSayHelloFailed  ClientActionCallbackName = "SayHelloFailed"
 )
 
 type ClientActionCallback struct {
@@ -34,4 +34,5 @@ type ClientActionCallback struct {
 
 type ClientSayHelloCallbackArgs struct {
 	ServerTarget string
+	Error        error
 }
