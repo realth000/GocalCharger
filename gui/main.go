@@ -20,7 +20,8 @@ func main() {
 	w := a.NewWindow("GocalChargerGui")
 	w.Resize(fyne.NewSize(800, 600))
 	downloadTab := tabs.NewDownloadTab()
-	tab := container.NewAppTabs(downloadTab)
+	networkTab := tabs.NewNetworkTab()
+	tab := container.NewAppTabs(downloadTab, networkTab)
 	w.SetContent(tab)
 	w.Show()
 
