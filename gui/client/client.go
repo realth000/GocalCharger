@@ -33,11 +33,17 @@ var (
 	clientSSLDownloadFilePath string
 )
 
+// Channels
+var (
+	uiChannel       = &tabs.ClientActionChanel
+	CallbackChannel = make(chan action.ClientActionCallback, 1)
+)
+
 func StartReceivingChannels() {
 	go func() {
 		for {
 			select {
-			case x := <-tabs.ClientActionChanel:
+			case x := <-*uiChannel:
 				go SayHello(x.ActionArgs.(action.ClientSayHelloArgs).ClientName)
 			}
 		}
@@ -56,6 +62,12 @@ func SayHello(clientName string) {
 		log.Fatalf("error greeting: %v\n", err)
 	}
 	log.Printf("successful greet: %s", r.Message)
+	CallbackChannel <- action.ClientActionCallback{
+		CallbackName: action.ClientSayHelloSuccess,
+		CallbackArgs: action.ClientSayHelloCallbackArgs{
+			ServerTarget: conn.Target(),
+		},
+	}
 }
 
 func DownloadFile() {

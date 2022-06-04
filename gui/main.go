@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	cConfig "gocalcharger/client/config"
+	"gocalcharger/gui/action"
 	"gocalcharger/gui/client"
 	"gocalcharger/gui/server"
 	"gocalcharger/gui/tabs"
@@ -20,8 +21,10 @@ const (
 )
 
 var (
-	serverConfig sConfig.ServerConfig
-	clientConfig cConfig.ClientConfig
+	serverConfig          sConfig.ServerConfig
+	clientConfig          cConfig.ClientConfig
+	clientCallbackChannel = &client.CallbackChannel
+	mainWindow            fyne.Window
 )
 
 func updateTime() {
@@ -53,6 +56,15 @@ func testApplyConfig() {
 	tabs.ApplyConfigs(serverConfig, clientConfig)
 }
 
+func StartReceivingChannels() {
+	for {
+		select {
+		case x := <-*clientCallbackChannel:
+			go handleClientSayHelloSuccess(x.CallbackArgs.(action.ClientSayHelloCallbackArgs))
+		}
+	}
+}
+
 func main() {
 	// Test loading configs.
 	testLoadConfig()
@@ -60,6 +72,7 @@ func main() {
 
 	a := app.New()
 	w := a.NewWindow("GocalChargerGui")
+	mainWindow = w
 	w.Resize(fyne.NewSize(800, 600))
 	downloadTab := tabs.NewDownloadTab()
 	networkTab := tabs.NewNetworkTab()
@@ -75,6 +88,7 @@ func main() {
 		}
 	}()
 	client.StartReceivingChannels()
+	go StartReceivingChannels()
 	go server.StartServer()
 	a.Run()
 }
