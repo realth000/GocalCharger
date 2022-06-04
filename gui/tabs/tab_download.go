@@ -119,36 +119,38 @@ func updateDownloadItemArea(id widget.ListItemID, item fyne.CanvasObject) {
 }
 
 func newDownloadControlArea() *fyne.Container {
+	addDownloadButton := widget.NewButton("Add", addDownload)
 	label := widget.NewLabel("Downloading:")
 	totalProgressBar := widget.NewProgressBar()
 	totalProgressBar.Resize(fyne.NewSize(1000, 100))
 	startButton := widget.NewButton("Start All", startDownloadAll)
 	pauseButton := widget.NewButton("Pause All", pauseDownloadAll)
 	cancelButton := widget.NewButton("Cancel ALl", cancelDownloadAll)
-	controlHBox := container.NewBorder(nil, nil, label, container.NewHBox(startButton, pauseButton, cancelButton), totalProgressBar)
+	controlHBox := container.NewBorder(nil, nil, container.NewHBox(addDownloadButton, label), container.NewHBox(startButton, pauseButton, cancelButton), totalProgressBar)
 	return controlHBox
 }
 
 func NewDownloadTab() *container.TabItem {
 	controlArea := newDownloadControlArea()
-
 	listArea := newDownloadListArea()
-	//Items = append(Items, downloadItem{
-	//	Name:       "123",
-	//	Icon:       "icon",
-	//	Url:        url.URL{},
-	//	Size:       1,
-	//	TotalSize:  10,
-	//	RemainTime: "--:--:--",
-	//	Dir:        "dir",
-	//	State:      0,
-	//	Err:        nil,
-	//})
-
 	// TODO: Handle empty list.
-	downloadTab := container.NewTabItem("Download", container.NewVBox(controlArea, listArea))
+	downloadTab := container.NewTabItem("Download", container.NewBorder(controlArea, nil, nil, nil, listArea))
 	//downloadTab := container.NewTabItem("Download", container.NewVBox(controlArea))
 	return downloadTab
+}
+
+func addDownload() {
+	Items = append(Items, downloadItem{
+		Name:       "123",
+		Icon:       "icon",
+		Url:        url.URL{},
+		Size:       1,
+		TotalSize:  10,
+		RemainTime: "--:--:--",
+		Dir:        "dir",
+		State:      0,
+		Err:        nil,
+	})
 }
 
 func startDownloadAll() {

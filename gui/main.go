@@ -21,7 +21,7 @@ func main() {
 	w.Resize(fyne.NewSize(800, 600))
 	downloadTab := tabs.NewDownloadTab()
 	tab := container.NewAppTabs(downloadTab)
-	w.SetContent(container.NewBorder(tab, nil, nil, nil))
+	w.SetContent(tab)
 	w.Show()
 
 	go func() {
