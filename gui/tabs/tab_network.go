@@ -7,12 +7,36 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	cConfig "gocalcharger/client/config"
+	sConfig "gocalcharger/server/config"
 )
 
 var (
-	serverStatus     = binding.NewString()
-	serverSSLEnabled = true
-	clientSSLEnable  = true
+	serverStatus = binding.NewString()
+)
+
+// Server configs
+var (
+	serverPort        uint
+	serverPermitFiles string
+	serverSSLEnabled  = true
+	serverSSLCert     string
+	serverSSLKey      string
+	serverCACert      string
+)
+
+// Client configs
+var (
+	clientRemoteServerIP      string
+	clientRemoteServerPort    uint
+	clientName                string
+	clientSSLEnable           = true
+	clientSSLCert             string
+	clientSSLKey              string
+	clientSSLCACert           string
+	clientSSLMutualAuth       bool
+	clientSSLDownloadFile     bool
+	clientSSLDownloadFilePath string
 )
 
 // SSL control
@@ -66,7 +90,9 @@ func newClientControlArea() fyne.CanvasObject {
 	sslConfig := makeClientSSLConfigArea()
 	updateClientSSL()
 	applyButton := widget.NewButton("Apply", reloadClientConfig)
-	return widget.NewCard("Client", "Client network configuration", container.NewVBox(netConfig, sslConfig, container.NewHBox(applyButton)))
+	testConnectServerButton := widget.NewButton("Test connect server", testConnectServer)
+	buttonBox := container.NewHBox(applyButton, testConnectServerButton)
+	return widget.NewCard("Client", "Client network configuration", container.NewVBox(netConfig, sslConfig, buttonBox))
 }
 
 func updateServerSSL() {
@@ -156,4 +182,32 @@ func SetServerSSL(b bool) {
 
 func reloadClientConfig() {
 	fmt.Println("reload client network config")
+}
+
+func testConnectServer() {
+	fmt.Println("test connect Server")
+}
+
+func ApplyConfigs(s sConfig.ServerConfig, c cConfig.ClientConfig) {
+	serverPort = s.Port
+	serverPermitFiles = s.PermitFiles
+	serverSSLEnabled = s.SSL
+	serverSSLCert = s.SSLCert
+	serverSSLKey = s.SSLKey
+	serverCACert = s.SSLCACert
+
+	clientRemoteServerIP = c.ServerUrl
+	clientRemoteServerPort = c.ServerPort
+	clientName = c.ClientName
+	clientSSLEnable = c.SSL
+	clientSSLCert = c.SSLCert
+	clientSSLKey = c.SSLKey
+	clientSSLCACert = c.SSLCACert
+	clientSSLMutualAuth = c.MutualAuth
+	clientSSLDownloadFile = c.DownloadFile
+	clientSSLDownloadFilePath = c.DownloadFilePath
+
+	// Test
+	fmt.Println(serverPort, serverPermitFiles, serverSSLEnabled, serverSSLCert, serverSSLKey, serverCACert)
+	fmt.Println(clientRemoteServerIP, clientRemoteServerPort, clientName, clientSSLEnable, clientSSLCert, clientSSLKey, clientSSLCACert, clientSSLMutualAuth, clientSSLDownloadFile, clientSSLDownloadFilePath)
 }
