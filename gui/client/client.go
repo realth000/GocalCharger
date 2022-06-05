@@ -42,20 +42,19 @@ var (
 var connMap = make(map[*grpc.ClientConn]int)
 
 func StartReceivingChannels() {
-	go func() {
-		for {
-			select {
-			case x := <-Channel:
-				switch x.ActionName {
-				case action.ClientSayHello:
-					go SayHello(x.ActionArgs.(action.ClientSayHelloArgs).ClientName)
-				case action.ClientDownloadFile:
-					args := x.ActionArgs.(action.ClientDownloadFileArgs)
-					go DownloadFile(args.FilePath)
-				}
+	for {
+		select {
+		case x := <-Channel:
+			switch x.ActionName {
+			case action.ClientSayHello:
+				go SayHello(x.ActionArgs.(action.ClientSayHelloArgs).ClientName)
+			case action.ClientDownloadFile:
+				fmt.Println("reach StartReceivingChannels in client.go")
+				args := x.ActionArgs.(action.ClientDownloadFileArgs)
+				go DownloadFile(args.FilePath)
 			}
 		}
-	}()
+	}
 }
 
 func SayHello(clientName string) {

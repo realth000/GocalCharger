@@ -79,9 +79,9 @@ func main() {
 			updateTime()
 		}
 	}()
-	client.StartReceivingChannels()
-	go StartReceivingChannels()
+	go client.StartReceivingChannels()
 	go tabs.StartReceivingChannels()
+	go StartReceivingChannels()
 	go server.StartServer()
 	a.Run()
 }
