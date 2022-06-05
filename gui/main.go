@@ -5,7 +5,6 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	cConfig "gocalcharger/client/config"
-	"gocalcharger/gui/action"
 	"gocalcharger/gui/client"
 	"gocalcharger/gui/server"
 	"gocalcharger/gui/tabs"
@@ -21,12 +20,10 @@ const (
 )
 
 var (
-	serverConfig          sConfig.ServerConfig
-	clientConfig          cConfig.ClientConfig
-	clientCallbackChannel = &client.CallbackChannel
-	serverCallbackChannel = &server.CallbackChannel
-	mainWindow            fyne.Window
-	mainApp               fyne.App
+	serverConfig sConfig.ServerConfig
+	clientConfig cConfig.ClientConfig
+	mainWindow   fyne.Window
+	mainApp      fyne.App
 )
 
 func updateTime() {
@@ -56,27 +53,6 @@ func testLoadConfig() {
 
 func testApplyConfig() {
 	tabs.ApplyConfigs(serverConfig, clientConfig)
-}
-
-func StartReceivingChannels() {
-	for {
-		select {
-		case x := <-*clientCallbackChannel:
-			switch x.CallbackName {
-			case action.ClientSayHelloSuccess:
-				go handleClientSayHelloSuccess(x.CallbackArgs.(action.ClientSayHelloCallbackArgs))
-			case action.ClientSayHelloFailed:
-				go handleClientSayHelloFailed(x.CallbackArgs.(action.ClientSayHelloCallbackArgs))
-			}
-		case x := <-*serverCallbackChannel:
-			switch x.CallbackName {
-			case action.ServerStartGRPCSuccess:
-				go handleServerStartGRPCSuccess(x.CallbackArgs.(action.ServerStartGRPCArgs))
-			case action.ServerStartGRPCFailed:
-				go handleServerStartGRPCFailed(x.CallbackArgs.(action.ServerStartGRPCArgs))
-			}
-		}
-	}
 }
 
 func main() {

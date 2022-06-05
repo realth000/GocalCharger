@@ -33,9 +33,30 @@ var (
 	CallbackChannel = make(chan action.ServerActionCallback, 1)
 )
 
-var serverGRPCServer *grpc.Server
+// gRPC server.
+var (
+	serverGRPCServer *grpc.Server
+	serveTarget      string
+)
 
 func StartServer() {
+	if serverGRPCServer != nil {
+		if serveTarget == "" {
+			serverGRPCServer.Stop()
+		} else {
+			if checkGRPCServerStatus(time.Millisecond * 500) {
+				// Already started.
+				CallbackChannel <- action.ServerActionCallback{
+					CallbackName: action.ServerStartGRPCSuccess,
+					CallbackArgs: action.ServerStartGRPCArgs{
+						ServeTarget: serveTarget,
+						Error:       nil,
+					},
+				}
+				return
+			}
+		}
+	}
 	serverPort, _ = tabs.ServerPort.Get()
 	serverPermitFiles, _ = tabs.ServerPermitFiles.Get()
 	serverSSLEnabled, _ = tabs.ServerSSLEnabled.Get()
@@ -43,7 +64,7 @@ func StartServer() {
 	serverSSLKey, _ = tabs.ServerSSLKey.Get()
 	serverCACert, _ = tabs.ServerCACert.Get()
 
-	serveTarget := fmt.Sprintf(":%s", serverPort)
+	serveTarget = fmt.Sprintf(":%s", serverPort)
 	listener, err := net.Listen("tcp", serveTarget)
 	if err != nil {
 		runCallbackError(serveTarget, action.ServerStartGRPCFailed, fmt.Sprintf("failed to listen: %v", err))
@@ -82,25 +103,40 @@ func StartServer() {
 	service.RegisterGocalChargerServerServer(serverGRPCServer, &server.Server{})
 
 	// reflection.Register(s)
+
 	go func() {
-		time.Sleep(time.Second)
-		if serverGRPCServer == nil {
-			return
-		}
-		log.Printf("gRPC server started[ServeTarget=%s]\n", serveTarget)
-		CallbackChannel <- action.ServerActionCallback{
-			CallbackName: action.ServerStartGRPCSuccess,
-			CallbackArgs: action.ServerStartGRPCArgs{
-				ServeTarget: serveTarget,
-				Error:       nil,
-			},
+		if checkGRPCServerStatus(time.Second) {
+			CallbackChannel <- action.ServerActionCallback{
+				CallbackName: action.ServerStartGRPCSuccess,
+				CallbackArgs: action.ServerStartGRPCArgs{
+					ServeTarget: serveTarget,
+					Error:       nil,
+				},
+			}
 		}
 	}()
 	err = serverGRPCServer.Serve(listener)
-	if err == nil {
+	if err != nil {
 		runCallbackError(serveTarget, action.ServerStartGRPCFailed, fmt.Sprintf("failed to serve: %v", err))
 		return
 	}
+}
+
+func StopServer() {
+	fmt.Println("close server")
+	if serverGRPCServer != nil {
+		serverGRPCServer.Stop()
+	}
+	CallbackChannel <- action.ServerActionCallback{CallbackName: action.ServerStopGRPCSuccess}
+}
+
+func checkGRPCServerStatus(waitTime time.Duration) bool {
+	time.Sleep(waitTime)
+	if serverGRPCServer == nil {
+		return false
+	}
+	log.Printf("gRPC server already started[ServeTarget=%s]\n", serveTarget)
+	return true
 }
 
 func runCallbackError(serveTarget string, errType action.ServerActionCallbackName, errString string) {

@@ -44,6 +44,7 @@ type ServerActionCallbackName = string
 const (
 	ServerStartGRPCSuccess ServerActionCallbackName = "StartGRPCSuccess"
 	ServerStartGRPCFailed  ServerActionCallbackName = "StartGRPCFailed"
+	ServerStopGRPCSuccess  ServerActionCallbackName = "StopGRPCSuccess"
 )
 
 type ServerActionCallback struct {
@@ -54,4 +55,18 @@ type ServerActionCallback struct {
 type ServerStartGRPCArgs struct {
 	ServeTarget string
 	Error       error
+}
+
+// UI actions
+
+type UIActionName = string
+
+const (
+	UIStartServer UIActionName = "UIStartServer"
+	UIStopServer  UIActionName = "UIStopServer"
+)
+
+type UIAction struct {
+	ActionName UIActionName
+	ActionArgs interface{}
 }

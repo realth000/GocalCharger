@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/data/validation"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	cConfig "gocalcharger/client/config"
 	"gocalcharger/gui/action"
@@ -19,8 +20,17 @@ const (
 	regexpPort = `^((6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|[0-5]?[0-9]{0,4})$`
 )
 
+type serverStatus = int
+
+const (
+	ServerClosed serverStatus = iota
+	ServerClosing
+	ServerStarting
+	ServerStarted
+)
+
 var (
-	serverStatus = binding.NewString()
+	status serverStatus
 )
 
 // Server configs
@@ -59,10 +69,16 @@ var (
 	clientCACertEntry *widget.Entry
 )
 
+// Server control
+var (
+	serverStatusButton *widget.Button
+)
+
 var ClientActionChanel = make(chan action.ClientAction, 1)
+var UITabsChannel = make(chan action.UIAction, 1)
 
 func init() {
-	_ = serverStatus.Set("closed")
+	status = ServerClosed
 }
 
 func newServerControlArea() fyne.CanvasObject {
@@ -74,11 +90,14 @@ func newServerControlArea() fyne.CanvasObject {
 }
 
 func makeServerNetworkConfigArea() fyne.CanvasObject {
+	statusLabel := widget.NewLabel("Server status:")
+	serverStatusButton = widget.NewButtonWithIcon("closed", theme.CancelIcon(), startOrStopServer)
+	statusHBox := container.NewHBox(statusLabel, serverStatusButton)
 	portLabel := widget.NewLabel("Localhost port")
 	portEntry := widget.NewEntryWithData(ServerPort)
 	portEntry.Validator = validation.NewRegexp(regexpPort, "Port need to be in (0,65535]")
 	portHBox := container.New(layout.NewFormLayout(), portLabel, portEntry)
-	return portHBox
+	return container.New(layout.NewVBoxLayout(), statusHBox, portHBox)
 }
 
 func makeServerSSLConfigArea() *fyne.Container {
@@ -224,4 +243,33 @@ func ApplyConfigs(s sConfig.ServerConfig, c cConfig.ClientConfig) {
 	_ = ClientSSLMutualAuth.Set(c.MutualAuth)
 	_ = ClientSSLDownloadFile.Set(c.DownloadFile)
 	_ = ClientSSLDownloadFilePath.Set(c.DownloadFilePath)
+}
+
+func startOrStopServer() {
+	switch status {
+	case ServerClosed, ServerClosing:
+		UpdateServerStatus(ServerStarting)
+		UITabsChannel <- action.UIAction{ActionName: action.UIStartServer}
+	case ServerStarting, ServerStarted:
+		UpdateServerStatus(ServerClosing)
+		UITabsChannel <- action.UIAction{ActionName: action.UIStopServer}
+	}
+}
+
+func UpdateServerStatus(s serverStatus) {
+	status = s
+	switch status {
+	case ServerClosed:
+		serverStatusButton.SetText("closed")
+		serverStatusButton.SetIcon(theme.CancelIcon())
+	case ServerClosing:
+		serverStatusButton.SetText("closing")
+		serverStatusButton.SetIcon(theme.ViewRefreshIcon())
+	case ServerStarting:
+		serverStatusButton.SetText("starting")
+		serverStatusButton.SetIcon(theme.ViewRefreshIcon())
+	case ServerStarted:
+		serverStatusButton.SetText("started")
+		serverStatusButton.SetIcon(theme.ConfirmIcon())
+	}
 }
