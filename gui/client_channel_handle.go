@@ -27,6 +27,19 @@ func handleClientSayHelloFailed(callback action.ClientSayHelloCallbackArgs) {
 func handleClientDownloadFile(args action.UIDownloadFileArgs) {
 	*clientChannel <- action.ClientAction{
 		ActionName: action.ClientDownloadFile,
-		ActionArgs: action.ClientDownloadFileArgs{FilePath: args.FilePath},
+		ActionArgs: action.ClientDownloadFileArgs{ID: args.ID, FilePath: args.FilePath},
+	}
+}
+
+func handleClientDownloadUpdate(args action.ClientDownloadUpdateArgs) {
+	*uiTabsChannel <- action.UIAction{
+		ActionName: action.UIDownloadFileUpdate,
+		ActionArgs: action.UIDownloadFileUpdateArgs{
+			ID:        args.ID,
+			FilePath:  args.FilePath,
+			Size:      args.Size,
+			TotalSize: args.TotalSize,
+			Finished:  args.Finished,
+		},
 	}
 }

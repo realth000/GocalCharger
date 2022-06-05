@@ -19,6 +19,7 @@ type ClientSayHelloArgs struct {
 }
 
 type ClientDownloadFileArgs struct {
+	ID       int
 	FilePath string
 }
 
@@ -29,6 +30,7 @@ type ClientActionCallbackName = string
 const (
 	ClientSayHelloSuccess ClientActionCallbackName = "SayHelloSuccess"
 	ClientSayHelloFailed  ClientActionCallbackName = "SayHelloFailed"
+	ClientDownloadUpdate  ClientActionCallbackName = "ClientDownloadProgressUpdate"
 )
 
 type ClientActionCallback struct {
@@ -39,6 +41,14 @@ type ClientActionCallback struct {
 type ClientSayHelloCallbackArgs struct {
 	ServerTarget string
 	Error        error
+}
+
+type ClientDownloadUpdateArgs struct {
+	ID        int
+	FilePath  string
+	Size      int
+	TotalSize int
+	Finished  bool
 }
 
 // Server callback actions
@@ -66,9 +76,10 @@ type ServerStartGRPCArgs struct {
 type UIActionName = string
 
 const (
-	UIStartServer  UIActionName = "UIStartServer"
-	UIStopServer   UIActionName = "UIStopServer"
-	UIDownloadFile UIActionName = "UIDownloadFile"
+	UIStartServer        UIActionName = "UIStartServer"
+	UIStopServer         UIActionName = "UIStopServer"
+	UIDownloadFile       UIActionName = "UIDownloadFile"
+	UIDownloadFileUpdate UIActionName = "UIDownloadFileUpdate"
 )
 
 type UIAction struct {
@@ -77,5 +88,14 @@ type UIAction struct {
 }
 
 type UIDownloadFileArgs struct {
+	ID       int
 	FilePath string
+}
+
+type UIDownloadFileUpdateArgs struct {
+	ID        int
+	FilePath  string
+	Size      int
+	TotalSize int
+	Finished  bool
 }

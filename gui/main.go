@@ -81,6 +81,7 @@ func main() {
 	}()
 	client.StartReceivingChannels()
 	go StartReceivingChannels()
+	go tabs.StartReceivingChannels()
 	go server.StartServer()
 	a.Run()
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"gocalcharger/api/service"
-	"gocalcharger/util/progress_bar"
 	"google.golang.org/grpc"
 	"io"
 	"io/ioutil"
@@ -13,6 +12,16 @@ import (
 	"path/filepath"
 	"time"
 )
+
+type downloadProgress struct {
+	FilePath  string
+	Size      int
+	TotalSize int
+	Finished  bool
+	Conn      *grpc.ClientConn
+}
+
+var ProgressChan = make(chan downloadProgress, 1)
 
 func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 	c := service.NewGocalChargerServerClient(conn)
@@ -34,11 +43,14 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 	if err == nil {
 		os.Remove(request.FileName)
 	}
-
 	for {
 		size, err := r.Recv()
-
 		if err == io.EOF {
+			ProgressChan <- downloadProgress{
+				FilePath: request.FileName,
+				Finished: true,
+				Conn:     conn,
+			}
 			log.Println("receive finish")
 			ioutil.WriteFile(request.FileName, b.Bytes(), 0755|os.ModeAppend)
 			break
@@ -47,7 +59,14 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 			log.Fatalf("error receving file:%v\n", err)
 			break
 		}
-		progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
+		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
+		ProgressChan <- downloadProgress{
+			FilePath:  request.FileName,
+			Size:      int(size.Process + 1),
+			TotalSize: int(size.Total),
+			Finished:  false,
+			Conn:      conn,
+		}
 		b.Write(size.FilePart)
 	}
 }

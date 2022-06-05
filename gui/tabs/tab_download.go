@@ -8,15 +8,15 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"gocalcharger/gui/action"
 	"net/url"
+	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 )
 
-type downloadState = int
+type downloadStatus = int
 
 const (
-	DownloadNotStarted downloadState = iota
+	DownloadNotStarted downloadStatus = iota
 	Downloading
 	DownloadPaused
 	DownloadFinished
@@ -28,11 +28,11 @@ type downloadItem struct {
 	Name       string
 	Icon       string
 	Url        url.URL
-	Size       uint
-	TotalSize  uint
+	Size       int
+	TotalSize  int
 	RemainTime string
 	Dir        string
-	State      downloadState
+	State      downloadStatus
 	Err        error
 	RowID      int
 }
@@ -41,6 +41,7 @@ var (
 	globalIndex           int
 	isDownloading         = false
 	Items                 []downloadItem
+	ItemIncreaseCount     = 0
 	list                  *widget.List
 	downloadStateToString = map[int]string{
 		DownloadNotStarted: "Not started",
@@ -154,27 +155,26 @@ func NewDownloadTab() *container.TabItem {
 	return downloadTab
 }
 
-var c = 1
-
 func addDownload() {
-	UITabsChannel <- action.UIAction{
-		ActionName: action.UIDownloadFile,
-		ActionArgs: action.UIDownloadFileArgs{FilePath: `./tests/data/server_rootfs/test_data`},
-	}
-	Items = append(Items, downloadItem{
-		Name:       strconv.Itoa(c),
+	path := `./tests/data/server_rootfs/test_data`
+	d := downloadItem{
+		Name:       filepath.Base(path),
 		Icon:       "icon",
 		Url:        url.URL{},
-		Size:       1,
-		TotalSize:  10,
+		Size:       0,
+		TotalSize:  1,
 		RemainTime: "--:--:--",
 		Dir:        "dir",
 		State:      0,
 		Err:        nil,
-	})
-	c++
-	//globalIndex = 0
+	}
+	Items = append(Items, d)
 	Update()
+	UITabsChannel <- action.UIAction{
+		ActionName: action.UIDownloadFile,
+		ActionArgs: action.UIDownloadFileArgs{ID: ItemIncreaseCount, FilePath: path},
+	}
+	ItemIncreaseCount++
 }
 
 func startDownloadAll() {
@@ -211,4 +211,30 @@ func countDownloadItems() int {
 
 func Update() {
 	list.Refresh()
+}
+
+func StartReceivingChannels() {
+	for {
+		select {
+		case x := <-UITabsChannel:
+			switch x.ActionName {
+			case action.UIDownloadFileUpdate:
+				args := x.ActionArgs.(action.UIDownloadFileUpdateArgs)
+				UpdateDownloadProgress(args.ID, args.FilePath, args.Size, args.TotalSize, args.Finished)
+			}
+		}
+	}
+}
+
+func UpdateDownloadProgress(ID int, filePath string, size int, totalSize int, finished bool) {
+	defer Update()
+	//fmt.Println(ID, filePath, size, totalSize, finished)
+	if finished {
+		Items[ID].State = DownloadFinished
+		Items[ID].Size = Items[ID].TotalSize
+		return
+	}
+	Items[ID].State = Downloading
+	Items[ID].Size = size
+	Items[ID].TotalSize = totalSize
 }

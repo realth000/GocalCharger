@@ -24,6 +24,8 @@ func StartReceivingChannels() {
 				go handleClientSayHelloSuccess(x.CallbackArgs.(action.ClientSayHelloCallbackArgs))
 			case action.ClientSayHelloFailed:
 				go handleClientSayHelloFailed(x.CallbackArgs.(action.ClientSayHelloCallbackArgs))
+			case action.ClientDownloadUpdate:
+				go handleClientDownloadUpdate(x.CallbackArgs.(action.ClientDownloadUpdateArgs))
 			}
 		case x := <-*serverCallbackChannel:
 			switch x.CallbackName {

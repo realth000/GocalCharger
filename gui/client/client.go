@@ -39,6 +39,8 @@ var (
 	CallbackChannel = make(chan action.ClientActionCallback, 1)
 )
 
+var connMap = make(map[*grpc.ClientConn]int)
+
 func StartReceivingChannels() {
 	go func() {
 		for {
@@ -48,7 +50,8 @@ func StartReceivingChannels() {
 				case action.ClientSayHello:
 					go SayHello(x.ActionArgs.(action.ClientSayHelloArgs).ClientName)
 				case action.ClientDownloadFile:
-					go DownloadFile(x.ActionArgs.(action.ClientDownloadFileArgs).FilePath)
+					args := x.ActionArgs.(action.ClientDownloadFileArgs)
+					go DownloadFile(args.FilePath)
 				}
 			}
 		}
@@ -93,7 +96,26 @@ func DownloadFile(filePath string) {
 		log.Fatalf("Nil connection in Downloadfile in client")
 	}
 	defer conn.Close()
-
+	go func() {
+		for {
+			select {
+			case x := <-file_download.ProgressChan:
+				CallbackChannel <- action.ClientActionCallback{
+					CallbackName: action.ClientDownloadUpdate,
+					CallbackArgs: action.ClientDownloadUpdateArgs{
+						ID:        connMap[x.Conn],
+						FilePath:  x.FilePath,
+						Size:      x.Size,
+						TotalSize: x.TotalSize,
+						Finished:  x.Finished,
+					},
+				}
+				if x.Finished {
+					return
+				}
+			}
+		}
+	}()
 	file_download.DownloadFile(conn, updateClientName(""), f)
 	log.Printf("download finish")
 }
