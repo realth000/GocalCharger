@@ -36,3 +36,22 @@ type ClientSayHelloCallbackArgs struct {
 	ServerTarget string
 	Error        error
 }
+
+// Server callback actions
+
+type ServerActionCallbackName = string
+
+const (
+	ServerStartGRPCSuccess ServerActionCallbackName = "StartGRPCSuccess"
+	ServerStartGRPCFailed  ServerActionCallbackName = "StartGRPCFailed"
+)
+
+type ServerActionCallback struct {
+	CallbackName ServerActionCallbackName
+	CallbackArgs interface{}
+}
+
+type ServerStartGRPCArgs struct {
+	ServeTarget string
+	Error       error
+}

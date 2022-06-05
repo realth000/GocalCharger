@@ -3,8 +3,10 @@ package server
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"gocalcharger/api/service"
+	"gocalcharger/gui/action"
 	"gocalcharger/gui/tabs"
 	"gocalcharger/server"
 	"gocalcharger/server/check_permission"
@@ -13,6 +15,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
+	"time"
 )
 
 // Server configs
@@ -25,6 +28,13 @@ var (
 	serverCACert      string
 )
 
+// channels
+var (
+	CallbackChannel = make(chan action.ServerActionCallback, 1)
+)
+
+var serverGRPCServer *grpc.Server
+
 func StartServer() {
 	serverPort, _ = tabs.ServerPort.Get()
 	serverPermitFiles, _ = tabs.ServerPermitFiles.Get()
@@ -33,27 +43,31 @@ func StartServer() {
 	serverSSLKey, _ = tabs.ServerSSLKey.Get()
 	serverCACert, _ = tabs.ServerCACert.Get()
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", serverPort))
+	serveTarget := fmt.Sprintf(":%s", serverPort)
+	listener, err := net.Listen("tcp", serveTarget)
 	if err != nil {
-		log.Fatalf("failed to listen: %v\n", err)
+		runCallbackError(serveTarget, action.ServerStartGRPCFailed, fmt.Sprintf("failed to listen: %v", err))
+		return
 	}
 
 	err = check_permission.LoadPermission(serverPermitFiles)
 	if err != nil {
-		log.Fatalf("error loading permission:%v\n", err)
+		runCallbackError(serveTarget, action.ServerStartGRPCFailed, fmt.Sprintf("error loading permission:%v", err))
+		return
 	}
 	// gRPC server.
-	var s *grpc.Server
 	if serverSSLEnabled {
 		// Mutual authentication.
 		cert, err := tls.LoadX509KeyPair(serverSSLCert, serverSSLKey)
 		if err != nil {
-			log.Fatalf("can not load SSL credential:%v", err)
+			runCallbackError(serveTarget, action.ServerStartGRPCFailed, fmt.Sprintf("can not load SSL credential:%v", err))
+			return
 		}
 		certPool := x509.NewCertPool()
 		credBytes, err := ioutil.ReadFile(serverCACert)
 		if err != nil {
-			log.Fatalf("can not load CA credential:%v", err)
+			runCallbackError(serveTarget, action.ServerStartGRPCFailed, fmt.Sprintf("can not load CA credential:%v", err))
+			return
 		}
 		certPool.AppendCertsFromPEM(credBytes)
 		cred := credentials.NewTLS(&tls.Config{
@@ -61,16 +75,41 @@ func StartServer() {
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			ClientCAs:    certPool,
 		})
-		s = grpc.NewServer(grpc.Creds(cred))
+		serverGRPCServer = grpc.NewServer(grpc.Creds(cred))
 	} else {
-		s = grpc.NewServer()
+		serverGRPCServer = grpc.NewServer()
 	}
-	service.RegisterGocalChargerServerServer(s, &server.Server{})
+	service.RegisterGocalChargerServerServer(serverGRPCServer, &server.Server{})
 
 	// reflection.Register(s)
-	fmt.Printf("gRPC serer running on %s\n", serverPort)
-	err = s.Serve(listener)
-	if err != nil {
-		log.Fatalf("failed to serve: %v\n", err)
+	go func() {
+		time.Sleep(time.Second)
+		if serverGRPCServer == nil {
+			return
+		}
+		log.Printf("gRPC server started[ServeTarget=%s]\n", serveTarget)
+		CallbackChannel <- action.ServerActionCallback{
+			CallbackName: action.ServerStartGRPCSuccess,
+			CallbackArgs: action.ServerStartGRPCArgs{
+				ServeTarget: serveTarget,
+				Error:       nil,
+			},
+		}
+	}()
+	err = serverGRPCServer.Serve(listener)
+	if err == nil {
+		runCallbackError(serveTarget, action.ServerStartGRPCFailed, fmt.Sprintf("failed to serve: %v", err))
+		return
+	}
+}
+
+func runCallbackError(serveTarget string, errType action.ServerActionCallbackName, errString string) {
+	log.Println(errString)
+	CallbackChannel <- action.ServerActionCallback{
+		CallbackName: errType,
+		CallbackArgs: action.ServerStartGRPCArgs{
+			ServeTarget: serveTarget,
+			Error:       errors.New(errString),
+		},
 	}
 }
