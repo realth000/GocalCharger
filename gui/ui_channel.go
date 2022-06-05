@@ -9,6 +9,7 @@ import (
 
 // Channels
 var (
+	clientChannel         = &client.Channel
 	clientCallbackChannel = &client.CallbackChannel
 	serverCallbackChannel = &server.CallbackChannel
 	uiTabsChannel         = &tabs.UITabsChannel
@@ -39,6 +40,8 @@ func StartReceivingChannels() {
 				go server.StartServer()
 			case action.UIStopServer:
 				go server.StopServer()
+			case action.ClientSayHello:
+				go handleClientSayHello(x.ActionArgs.(action.ClientSayHelloArgs))
 			}
 
 		}

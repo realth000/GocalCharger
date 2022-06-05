@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+func handleClientSayHello(callback action.ClientSayHelloArgs) {
+	*clientChannel <- action.ClientAction{ActionName: action.ClientSayHello, ActionArgs: action.ClientSayHelloArgs{ClientName: callback.ClientName}}
+}
+
 func handleClientSayHelloSuccess(callback action.ClientSayHelloCallbackArgs) {
 	dialog.ShowInformation("Test connect", fmt.Sprintf("Test connect to server successful\n[Server: %s]", callback.ServerTarget), mainWindow)
 }

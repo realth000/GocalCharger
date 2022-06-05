@@ -73,8 +73,6 @@ var (
 var (
 	serverStatusButton *widget.Button
 )
-
-var ClientActionChanel = make(chan action.ClientAction, 1)
 var UITabsChannel = make(chan action.UIAction, 1)
 
 func init() {
@@ -222,7 +220,10 @@ func reloadClientConfig() {
 
 func testConnectServer() {
 	name, _ := ClientName.Get()
-	ClientActionChanel <- action.ClientAction{ActionName: action.ClientSayHello, ActionArgs: action.ClientSayHelloArgs{ClientName: name}}
+	UITabsChannel <- action.UIAction{
+		ActionName: action.ClientSayHello,
+		ActionArgs: action.ClientSayHelloArgs{ClientName: name},
+	}
 }
 
 func ApplyConfigs(s sConfig.ServerConfig, c cConfig.ClientConfig) {

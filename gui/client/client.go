@@ -35,7 +35,7 @@ var (
 
 // Channels
 var (
-	uiChannel       = &tabs.ClientActionChanel
+	Channel         = make(chan action.ClientAction, 1)
 	CallbackChannel = make(chan action.ClientActionCallback, 1)
 )
 
@@ -43,7 +43,7 @@ func StartReceivingChannels() {
 	go func() {
 		for {
 			select {
-			case x := <-*uiChannel:
+			case x := <-Channel:
 				go SayHello(x.ActionArgs.(action.ClientSayHelloArgs).ClientName)
 			}
 		}
