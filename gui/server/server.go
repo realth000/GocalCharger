@@ -126,6 +126,7 @@ func StopServer() {
 	fmt.Println("close server")
 	if serverGRPCServer != nil {
 		serverGRPCServer.Stop()
+		serverGRPCServer = nil
 	}
 	CallbackChannel <- action.ServerActionCallback{CallbackName: action.ServerStopGRPCSuccess}
 }
