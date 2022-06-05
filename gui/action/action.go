@@ -5,8 +5,8 @@ package action
 type ClientActionName = string
 
 const (
-	ClientSayHello     ClientActionName = "SayHello"
-	ClientDownloadFile ClientActionName = "SayHello"
+	ClientSayHello     ClientActionName = "ClientSayHello"
+	ClientDownloadFile ClientActionName = "ClientDownloadFile"
 )
 
 type ClientAction struct {
@@ -16,6 +16,10 @@ type ClientAction struct {
 
 type ClientSayHelloArgs struct {
 	ClientName string
+}
+
+type ClientDownloadFileArgs struct {
+	FilePath string
 }
 
 // Client callback Actions
@@ -62,11 +66,16 @@ type ServerStartGRPCArgs struct {
 type UIActionName = string
 
 const (
-	UIStartServer UIActionName = "UIStartServer"
-	UIStopServer  UIActionName = "UIStopServer"
+	UIStartServer  UIActionName = "UIStartServer"
+	UIStopServer   UIActionName = "UIStopServer"
+	UIDownloadFile UIActionName = "UIDownloadFile"
 )
 
 type UIAction struct {
 	ActionName UIActionName
 	ActionArgs interface{}
+}
+
+type UIDownloadFileArgs struct {
+	FilePath string
 }

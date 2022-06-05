@@ -44,7 +44,12 @@ func StartReceivingChannels() {
 		for {
 			select {
 			case x := <-Channel:
-				go SayHello(x.ActionArgs.(action.ClientSayHelloArgs).ClientName)
+				switch x.ActionName {
+				case action.ClientSayHello:
+					go SayHello(x.ActionArgs.(action.ClientSayHelloArgs).ClientName)
+				case action.ClientDownloadFile:
+					go DownloadFile(x.ActionArgs.(action.ClientDownloadFileArgs).FilePath)
+				}
 			}
 		}
 	}()
@@ -78,14 +83,18 @@ func SayHello(clientName string) {
 	}
 }
 
-func DownloadFile() {
+func DownloadFile(filePath string) {
+	f := clientSSLDownloadFilePath
+	if filePath != "" {
+		f = filePath
+	}
 	conn := initClient()
 	if conn == nil {
 		log.Fatalf("Nil connection in Downloadfile in client")
 	}
 	defer conn.Close()
 
-	file_download.DownloadFile(conn, updateClientName(""), clientSSLDownloadFilePath)
+	file_download.DownloadFile(conn, updateClientName(""), f)
 	log.Printf("download finish")
 }
 

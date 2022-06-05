@@ -23,3 +23,10 @@ func handleClientSayHelloFailed(callback action.ClientSayHelloCallbackArgs) {
 	dialog.ShowError(errors.New(errString), mainWindow)
 	tabs.UpdateServerStatus(tabs.ServerClosed)
 }
+
+func handleClientDownloadFile(args action.UIDownloadFileArgs) {
+	*clientChannel <- action.ClientAction{
+		ActionName: action.ClientDownloadFile,
+		ActionArgs: action.ClientDownloadFileArgs{FilePath: args.FilePath},
+	}
+}

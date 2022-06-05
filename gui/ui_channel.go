@@ -42,6 +42,8 @@ func StartReceivingChannels() {
 				go server.StopServer()
 			case action.ClientSayHello:
 				go handleClientSayHello(x.ActionArgs.(action.ClientSayHelloArgs))
+			case action.UIDownloadFile:
+				go handleClientDownloadFile(x.ActionArgs.(action.UIDownloadFileArgs))
 			}
 
 		}

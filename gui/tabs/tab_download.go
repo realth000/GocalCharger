@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"gocalcharger/gui/action"
 	"net/url"
 	"runtime"
 	"strconv"
@@ -156,6 +157,10 @@ func NewDownloadTab() *container.TabItem {
 var c = 1
 
 func addDownload() {
+	UITabsChannel <- action.UIAction{
+		ActionName: action.UIDownloadFile,
+		ActionArgs: action.UIDownloadFileArgs{FilePath: `./tests/data/server_rootfs/test_data`},
+	}
 	Items = append(Items, downloadItem{
 		Name:       strconv.Itoa(c),
 		Icon:       "icon",
