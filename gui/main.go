@@ -11,7 +11,6 @@ import (
 	sConfig "gocalcharger/server/config"
 	"log"
 	"os"
-	"time"
 )
 
 const (
@@ -74,11 +73,6 @@ func main() {
 
 	w.Show()
 
-	go func() {
-		for range time.Tick(time.Second) {
-			updateTime()
-		}
-	}()
 	go client.StartReceivingChannels()
 	go tabs.StartReceivingChannels()
 	go StartReceivingChannels()
