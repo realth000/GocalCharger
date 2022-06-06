@@ -1,8 +1,6 @@
 GO ?= go
-SOURCE_GUI = gocalcharger/gui
 SOURCE_CMD_SERVER = cmd/server/server.go
 SOURCE_CMD_CLIENT = cmd/client/client.go
-TARGET_GUI = GocalChargerGui
 TARGET_CMD_SERVER = GocalChargerServer
 TARGET_CMD_CLIENT = GocalChargerClient
 
@@ -17,11 +15,8 @@ export CGO_CFLAGS=$(GO_FLAGS)
 export CGO_CXXFLAGS=$(GO_FLAGS)
 
 .PHONY: all
-all: gui cmd
+all: cmd
 
-.PHONY: gui
-gui:
-	$(GO_BUILD) -o $(TARGET_GUI) $(SOURCE_GUI)
 
 .PHONY: cmd
 cmd: cmd/server cmd/client
@@ -36,4 +31,4 @@ cmd/client:
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET_GUI) $(TARGET_CMD_SERVER) $(TARGET_CMD_CLIENT)
+	$(RM) $(TARGET_CMD_SERVER) $(TARGET_CMD_CLIENT)
