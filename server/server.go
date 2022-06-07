@@ -39,20 +39,20 @@ func (s *Server) DownloadFile(req *service.DownloadFileRequest, stream service.G
 	fileInfo, _ := file.Stat()
 
 	var fileSize int64 = fileInfo.Size()
-	const fileChunk = 1 * (1 << 20) // 1 MB, change this to your requirement
-	totalPartsNum := uint64(math.Ceil(float64(fileSize) / float64(fileChunk)))
+	const fileChunk = int32(1 * (1 << 20)) // 1 MB, change this to your requirement
+	totalPartsNum := int32(math.Ceil(float64(fileSize) / float64(fileChunk)))
 	fmt.Printf("Splitting to %d pieces.\n", totalPartsNum)
-	for i := uint64(0); i < totalPartsNum; i++ {
-		partSize := int(math.Min(fileChunk, float64(fileSize-int64(i*fileChunk))))
+	for i := int32(0); i < totalPartsNum; i++ {
+		partSize := int(math.Min(float64(fileChunk), float64(fileSize-int64(i*fileChunk))))
 		partBuffer := make([]byte, partSize)
 		file.Read(partBuffer)
 		resp := &service.DownloadFileReply{
 			FileName:  fileInfo.Name(),
 			FileSize:  int32(fileInfo.Size()),
 			FilePart:  partBuffer,
-			Process:   int32(i),
-			Total:     int32(totalPartsNum),
-			FileChunk: int32(fileChunk),
+			Process:   i,
+			Total:     totalPartsNum,
+			FileChunk: fileChunk,
 		}
 
 		err = stream.SendMsg(resp)
