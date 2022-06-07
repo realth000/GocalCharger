@@ -3,6 +3,7 @@ package file_download
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"gocalcharger/api/service"
 	"google.golang.org/grpc"
 	"io"
@@ -34,23 +35,46 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 		os.Remove(request.FileName)
 	}
 	var (
+		fName    string
+		size     int32
 		progress int32
 		total    int32
 	)
+
+	{
+		data, err := r.Recv()
+		if err != nil {
+			fmt.Println(progress, total)
+			log.Fatalf("error receving file:%v\n", err)
+
+			return
+		}
+		fName = data.FileName
+		size = data.FileSize
+		progress++
+		total = data.Total
+
+		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", data.FileName, float32(data.Process)/float32(data.Total)*100, data.FileSize)
+		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
+		b.Write(data.FilePart)
+	}
 	for {
-		size, err := r.Recv()
-		if err == io.EOF && progress+1 == total {
-			log.Println("receive finish")
+		data, err := r.Recv()
+		if err == io.EOF && progress == total {
+			fmt.Printf("Download: %s[100%%][%d bytes]\n", fName, size)
 			ioutil.WriteFile(request.FileName, b.Bytes(), 0755|os.ModeAppend)
 			break
 		}
 		if err != nil {
+			fmt.Println(progress, total)
 			log.Fatalf("error receving file:%v\n", err)
+
 			break
 		}
-		progress = size.Process
-		total = size.Total
+		progress++
+
+		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", data.FileName, float32(data.Process)/float32(data.Total)*100, data.FileSize)
 		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
-		b.Write(size.FilePart)
+		b.Write(data.FilePart)
 	}
 }

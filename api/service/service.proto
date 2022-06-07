@@ -28,7 +28,10 @@ message DownloadFileRequest {
 
 // The request message containing the file.
 message DownloadFileReply {
-  bytes filePart = 2;
-  int32 process = 3;
-  int32 total = 4;
+  string fileName = 1;
+  int32 fileSize = 2;
+  bytes filePart = 3;
+  int32 process = 4;
+  int32 total = 5;
+  int32 fileChunk = 6;
 }

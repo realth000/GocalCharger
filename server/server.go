@@ -47,9 +47,12 @@ func (s *Server) DownloadFile(req *service.DownloadFileRequest, stream service.G
 		partBuffer := make([]byte, partSize)
 		file.Read(partBuffer)
 		resp := &service.DownloadFileReply{
-			FilePart: partBuffer,
-			Process:  int32(i),
-			Total:    int32(totalPartsNum),
+			FileName:  fileInfo.Name(),
+			FileSize:  int32(fileInfo.Size()),
+			FilePart:  partBuffer,
+			Process:   int32(i),
+			Total:     int32(totalPartsNum),
+			FileChunk: int32(fileChunk),
 		}
 
 		err = stream.SendMsg(resp)
