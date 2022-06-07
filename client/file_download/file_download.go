@@ -33,9 +33,13 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 	if err == nil {
 		os.Remove(request.FileName)
 	}
+	var (
+		progress int32
+		total    int32
+	)
 	for {
 		size, err := r.Recv()
-		if err == io.EOF {
+		if err == io.EOF && progress+1 == total {
 			log.Println("receive finish")
 			ioutil.WriteFile(request.FileName, b.Bytes(), 0755|os.ModeAppend)
 			break
@@ -44,6 +48,8 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 			log.Fatalf("error receving file:%v\n", err)
 			break
 		}
+		progress = size.Process
+		total = size.Total
 		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
 		b.Write(size.FilePart)
 	}
