@@ -2,7 +2,6 @@ package file_download
 
 import (
 	"context"
-	"fmt"
 	"gocalcharger/api/service"
 	"google.golang.org/grpc"
 	"io"
@@ -23,7 +22,7 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 	}
 	r, err := c.DownloadFile(ctx, &request)
 	if err != nil {
-		log.Fatalf("error downloading file:%v\n", err)
+		log.Fatalf("error downloading file:%v", err)
 	}
 
 	// Delete old file
@@ -43,45 +42,35 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 		total    int32
 	)
 
-	{
-		data, err := r.Recv()
-		if err != nil {
-			fmt.Println(progress, total)
-			log.Fatalf("error receving file:%v\n", err)
+	data, err := r.Recv()
+	if err != nil {
+		log.Fatalf("error receving file:%v", err)
+	}
+	fName = data.FileName
+	size = data.FileSize
+	progress++
+	total = data.Total
 
-			return
-		}
-		fName = data.FileName
-		size = data.FileSize
-		progress++
-		total = data.Total
-
-		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", tmpFile.Name(), float32(data.Process)/float32(data.Total)*100, data.FileSize)
-		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
-		_, err = tmpFile.Write(data.FilePart)
-		if err != nil {
-			fmt.Printf("error saving file %s:%v\n", request.FileName, err)
-		}
-
+	log.Printf("Download: %s[%3.0f%%][%d bytes]\033[1A", tmpFile.Name(), float32(data.Process)/float32(data.Total)*100, data.FileSize)
+	_, err = tmpFile.Write(data.FilePart)
+	if err != nil {
+		log.Printf("error saving file %s:%v", request.FileName, err)
 	}
 	for {
 		data, err := r.Recv()
 		if err == io.EOF && progress == total {
-			fmt.Printf("Download: %s[100%%][%d bytes]\n", fName, size)
+			log.Printf("Download: %s[100%%][%d bytes]", fName, size)
 			break
 		}
 		if err != nil {
-			fmt.Println(progress, total)
-			log.Fatalf("error receving file:%v\n", err)
-
-			break
+			log.Fatalf("error receving file:%v", err)
 		}
 		progress++
 
-		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", data.FileName, float32(data.Process)/float32(data.Total)*100, data.FileSize)
+		log.Printf("Download: %s[%3.0f%%][%d bytes]\033[1A", data.FileName, float32(data.Process)/float32(data.Total)*100, data.FileSize)
 		_, err = tmpFile.Write(data.FilePart)
 		if err != nil {
-			fmt.Printf("error saving file %s:%v\n", request.FileName, err)
+			log.Printf("error saving file %s:%v", request.FileName, err)
 		}
 	}
 }
