@@ -1,7 +1,6 @@
 package file_download
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"gocalcharger/api/service"
@@ -28,7 +27,6 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 		log.Fatalf("error downloading file:%v\n", err)
 	}
 
-	b := new(bytes.Buffer)
 	// Delete old file
 	_, err = os.Stat(request.FileName)
 	if err == nil {
@@ -56,13 +54,15 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 
 		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", data.FileName, float32(data.Process)/float32(data.Total)*100, data.FileSize)
 		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
-		b.Write(data.FilePart)
+		if ioutil.WriteFile(request.FileName, data.FilePart, 0755|os.ModeAppend) != err {
+			fmt.Printf("error saving file %s:%v\n", request.FileName, err)
+		}
+
 	}
 	for {
 		data, err := r.Recv()
 		if err == io.EOF && progress == total {
 			fmt.Printf("Download: %s[100%%][%d bytes]\n", fName, size)
-			ioutil.WriteFile(request.FileName, b.Bytes(), 0755|os.ModeAppend)
 			break
 		}
 		if err != nil {
@@ -75,6 +75,6 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 
 		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", data.FileName, float32(data.Process)/float32(data.Total)*100, data.FileSize)
 		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
-		b.Write(data.FilePart)
+		ioutil.WriteFile(request.FileName, data.FilePart, 0755|os.ModeAppend)
 	}
 }
