@@ -6,7 +6,6 @@ import (
 	"gocalcharger/api/service"
 	"google.golang.org/grpc"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -32,6 +31,11 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 	if err == nil {
 		os.Remove(request.FileName)
 	}
+	tmpFile, err := os.OpenFile(request.FileName, os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatalf("can not save %s:%v", request.FileName, err)
+	}
+
 	var (
 		fName    string
 		size     int32
@@ -52,9 +56,10 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 		progress++
 		total = data.Total
 
-		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", data.FileName, float32(data.Process)/float32(data.Total)*100, data.FileSize)
+		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", tmpFile.Name(), float32(data.Process)/float32(data.Total)*100, data.FileSize)
 		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
-		if ioutil.WriteFile(request.FileName, data.FilePart, 0755|os.ModeAppend) != err {
+		_, err = tmpFile.Write(data.FilePart)
+		if err != nil {
 			fmt.Printf("error saving file %s:%v\n", request.FileName, err)
 		}
 
@@ -74,7 +79,9 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 		progress++
 
 		fmt.Printf("Download: %s[%3.0f%%][%d bytes]\n", data.FileName, float32(data.Process)/float32(data.Total)*100, data.FileSize)
-		//progress_bar.UpdateProgress(request.FileName, int(100*size.Process/size.Total))
-		ioutil.WriteFile(request.FileName, data.FilePart, 0755|os.ModeAppend)
+		_, err = tmpFile.Write(data.FilePart)
+		if err != nil {
+			fmt.Printf("error saving file %s:%v\n", request.FileName, err)
+		}
 	}
 }
