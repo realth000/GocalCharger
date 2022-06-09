@@ -1,6 +1,6 @@
 GO ?= go
-SOURCE_CMD_SERVER = cmd/server/server.go
-SOURCE_CMD_CLIENT = cmd/client/client.go
+SOURCE_CMD_SERVER = gocalcharger/cmd/server
+SOURCE_CMD_CLIENT = gocalcharger/cmd/client
 TARGET_CMD_SERVER = GocalChargerServer
 TARGET_CMD_CLIENT = GocalChargerClient
 

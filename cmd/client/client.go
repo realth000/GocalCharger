@@ -13,6 +13,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 	"io/ioutil"
 	"log"
+	"sync"
 )
 
 const (
@@ -178,7 +179,12 @@ func main() {
 		}
 		log.Printf("successful greet: %s", r.Message)
 	case "download-file":
-		file_download.DownloadFile(conn, name, *flagFileName)
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		go watchFileDownload(&wg)
+		go file_download.DownloadFile(conn, name, *flagFileName)
+		wg.Wait()
+		finishDownloadWatchChan <- true
 		log.Printf("download finish")
 	}
 }
