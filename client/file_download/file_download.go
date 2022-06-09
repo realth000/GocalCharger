@@ -57,7 +57,7 @@ func DownloadFile(conn *grpc.ClientConn, name string, filePath string) {
 	if err == nil {
 		os.Remove(request.FileName)
 	}
-	tmpFile, err := os.OpenFile(request.FileName, os.O_CREATE, 0644)
+	tmpFile, err := os.OpenFile(request.FileName, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		//log.Fatalf("can not save %s:%v", request.FileName, err)
 		DownloadProgressChan <- DownloadProgress{
