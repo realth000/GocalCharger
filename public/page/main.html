@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!--TODO: STILL UNDER BUILDING-->
+<!--STILL UNDER BUILDING-->
+<!--STILL UNDER BUILDING-->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>GocalCharger</title>
+<!--  <link rel="stylesheet" type="text/css" href="test.css">-->
+  <script>
+    function InitState() {
+      ServerUpdateSSLState()
+      ClientUpdateSSLState()
+    }
+    // Server functions
+    function ServerUpdateSSLState() {
+      const useSSL = document.getElementById("checkboxServerSSLEnable").checked;
+      console.log("server SSL enabled:", useSSL)
+      if (useSSL) {
+        serverEnableSSLState()
+      } else {
+        serverDisableSSLState()
+      }
+    }
+    function serverDisableSSLState() {
+      document.getElementById("checkboxServerSSLCertPath").setAttribute("disabled", "disabled")
+      document.getElementById("checkboxServerKeyPath").setAttribute("disabled", "disabled")
+      document.getElementById("checkboxServerCACertPath").setAttribute("disabled", "disabled")
+    }
+    function serverEnableSSLState() {
+      document.getElementById("checkboxServerSSLCertPath").removeAttribute("disabled")
+      document.getElementById("checkboxServerKeyPath").removeAttribute("disabled")
+      document.getElementById("checkboxServerCACertPath").removeAttribute("disabled")
+    }
+
+    // Client functions
+    function ClientUpdateSSLState() {
+      const useSSL = document.getElementById("checkboxClientSSLEnable").checked;
+      console.log("client SSL enabled:", useSSL)
+      if (useSSL) {
+        clientEnableSSLState()
+      } else {
+        clientDisableSSLState()
+
+      }
+      function clientDisableSSLState() {
+        document.getElementById("checkboxClientSSLCertPath").setAttribute("disabled", "disabled")
+        document.getElementById("checkboxClientKeyPath").setAttribute("disabled", "disabled")
+        document.getElementById("checkboxClientCACertPath").setAttribute("disabled", "disabled")
+      }
+      function clientEnableSSLState() {
+        document.getElementById("checkboxClientSSLCertPath").removeAttribute("disabled")
+        document.getElementById("checkboxClientKeyPath").removeAttribute("disabled")
+        document.getElementById("checkboxClientCACertPath").removeAttribute("disabled")
+      }
+    }
+  </script>
+</head>
+<body onload="InitState()">
+<div id="app"></div>
+<form action="" id="formServerSettings" accept-charset="UTF-8" method="post">
+  <div id="ServerSSL">
+    <hr>
+    <h2>Server settings</h2>
+    <div>
+      <dl>
+        <dt>
+          <label>Port</label>
+        </dt>
+        <dd>
+          <input type="number" id="numberServerPort">
+        </dd>
+      </dl>
+    </div>
+    <fieldset style="border: 1px solid crimson;">
+      <legend>
+        <input type="checkbox" id="checkboxServerSSLEnable" onclick="ServerUpdateSSLState()">Use SSL
+      </legend>
+      <dl>
+        <dt>
+          <label>Certificate path</label>
+        </dt>
+        <dd>
+          <input id="checkboxServerSSLCertPath">
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <label>Private key</label>
+        </dt>
+        <dd>
+          <input id="checkboxServerKeyPath">
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <label>CA certificate path</label>
+        </dt>
+        <dd>
+          <input id="checkboxServerCACertPath">
+        </dd>
+      </dl>
+    </fieldset>
+  </div>
+</form>
+<form action="" id="formClientSettings" accept-charset="UTF-8" method="post">
+  <div id="ClientSSL">
+    <hr>
+    <h2>Client settings</h2>
+    <div>
+      <dl>
+        <dt>
+          <label>Remote server IP</label>
+        </dt>
+        <dd>
+          <input type="text" id="numberRemoteServerIP">
+        </dd>
+      </dl>
+    </div>
+    <div>
+      <dl>
+        <dt>
+          <label>Remote server port</label>
+        </dt>
+        <dd>
+          <input type="number" id="numberRemoteServerPort">
+        </dd>
+      </dl>
+    </div>
+    <fieldset style="border: 1px solid crimson;">
+      <legend>
+        <input type="checkbox" id="checkboxClientSSLEnable" onclick="ClientUpdateSSLState()">Use SSL
+      </legend>
+      <dl>
+        <dt>
+          <label>Certificate path</label>
+        </dt>
+        <dd>
+          <input id="checkboxClientSSLCertPath">
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <label>Private key</label>
+        </dt>
+        <dd>
+          <input id="checkboxClientKeyPath">
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <label>CA certificate path</label>
+        </dt>
+        <dd>
+          <input id="checkboxClientCACertPath">
+        </dd>
+      </dl>
+    </fieldset>
+  </div>
+</form>
+</body>
+</html>
