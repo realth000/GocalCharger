@@ -31,8 +31,8 @@ func loadConfigFile() {
 	if *flagConfigFile == "" {
 		return
 	}
-	var sc = config.ServerConfig{}
-	err := config.LoadConfigFile(*flagConfigFile, &sc)
+	err := config.LoadConfigFile(*flagConfigFile)
+	sc := config.GetConfig()
 	if err != nil {
 		log.Fatalf("can not load config file:%v", err)
 	}

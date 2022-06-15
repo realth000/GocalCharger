@@ -14,11 +14,17 @@ type ServerConfig struct {
 	SSLCACert   string `toml:"ssl_ca_cert"`
 }
 
-func LoadConfigFile(filePath string, serverConfig *ServerConfig) error {
+var sc = ServerConfig{}
+
+func GetConfig() ServerConfig {
+	return sc
+}
+
+func LoadConfigFile(filePath string) error {
 	configFile, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
-	err = toml.Unmarshal(configFile, serverConfig)
+	err = toml.Unmarshal(configFile, &sc)
 	return err
 }
