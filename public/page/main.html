@@ -43,21 +43,36 @@
         clientDisableSSLState()
 
       }
-      function clientDisableSSLState() {
-        document.getElementById("checkboxClientSSLCertPath").setAttribute("disabled", "disabled")
-        document.getElementById("checkboxClientKeyPath").setAttribute("disabled", "disabled")
-        document.getElementById("checkboxClientCACertPath").setAttribute("disabled", "disabled")
-      }
-      function clientEnableSSLState() {
-        document.getElementById("checkboxClientSSLCertPath").removeAttribute("disabled")
-        document.getElementById("checkboxClientKeyPath").removeAttribute("disabled")
-        document.getElementById("checkboxClientCACertPath").removeAttribute("disabled")
+    }
+    function clientDisableSSLState() {
+      document.getElementById("checkboxClientSSLCertPath").setAttribute("disabled", "disabled")
+      document.getElementById("checkboxClientKeyPath").setAttribute("disabled", "disabled")
+      document.getElementById("checkboxClientCACertPath").setAttribute("disabled", "disabled")
+    }
+    function clientEnableSSLState() {
+      document.getElementById("checkboxClientSSLCertPath").removeAttribute("disabled")
+      document.getElementById("checkboxClientKeyPath").removeAttribute("disabled")
+      document.getElementById("checkboxClientCACertPath").removeAttribute("disabled")
+    }
+
+    // Load config
+    function loadConfig() {
+      const r = new XMLHttpRequest()
+      r.open("GET", "/api/configs")
+      r.send()
+      r.onreadystatechange=function (){
+          console.log(r.responseText)
       }
     }
   </script>
 </head>
 <body onload="InitState()">
 <div id="app"></div>
+<div id="controls">
+  <div>
+    <button onclick="loadConfig()">Load configs</button>
+  </div>
+</div>
 <form action="" id="formServerSettings" accept-charset="UTF-8" method="post">
   <div id="ServerSSL">
     <hr>
