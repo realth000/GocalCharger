@@ -61,8 +61,40 @@
       r.open("GET", "/api/configs")
       r.send()
       r.onreadystatechange=function (){
-          console.log(r.responseText)
+        if (r.readyState !== 4) {
+          return
+        }
+        console.log(r.responseText)
+        const configs = JSON.parse(r.responseText)
+        const serverConfig = configs.configs.ServerConfig
+        const clientConfig = configs.configs.ClientConfig
+
+        if (serverConfig !== null) {
+          applyServerConfig(serverConfig)
+        }
+        if (clientConfig !== null) {
+          applyClientConfig(clientConfig)
+        }
       }
+    }
+
+    function applyServerConfig(config) {
+      console.log("serverConfig", config)
+      document.getElementById("numberServerPort").value = config.Port.toString()
+      const ssl = config.SSL
+      document.getElementById("checkboxServerSSLEnable").checked = ssl
+      document.getElementById("checkboxServerSSLCertPath").value = config.SSLCert
+      document.getElementById("checkboxServerKeyPath").value = config.SSLKey
+      document.getElementById("checkboxServerCACertPath").value = config.SSLCACert
+      if (ssl) {
+        serverEnableSSLState()
+      } else {
+        serverDisableSSLState()
+      }
+    }
+
+    function applyClientConfig(config) {
+      console.log("clientConfig", config)
     }
   </script>
 </head>
