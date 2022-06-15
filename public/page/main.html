@@ -86,15 +86,19 @@
       document.getElementById("checkboxServerSSLCertPath").value = config.SSLCert
       document.getElementById("checkboxServerKeyPath").value = config.SSLKey
       document.getElementById("checkboxServerCACertPath").value = config.SSLCACert
-      if (ssl) {
-        serverEnableSSLState()
-      } else {
-        serverDisableSSLState()
-      }
+      ServerUpdateSSLState()
     }
 
     function applyClientConfig(config) {
       console.log("clientConfig", config)
+      document.getElementById("numberRemoteServerIP").value = config.ServerUrl
+      document.getElementById("numberRemoteServerPort").value = config.ServerPort.toString()
+      const ssl = config.SSL
+      document.getElementById("checkboxClientSSLEnable").checked = ssl
+      document.getElementById("checkboxClientSSLCertPath").value = config.SSLCert
+      document.getElementById("checkboxClientKeyPath").value = config.SSLKey
+      document.getElementById("checkboxClientCACertPath").value = config.SSLCACert
+      ClientUpdateSSLState()
     }
   </script>
 </head>
