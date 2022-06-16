@@ -1,19 +1,10 @@
 package main
 
 import (
-	"crypto/tls"
-	"crypto/x509"
-	"fmt"
-	"gocalcharger/api/service"
 	"gocalcharger/server"
-	"gocalcharger/server/check_permission"
 	"gocalcharger/server/config"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"io/ioutil"
 	"log"
-	"net"
 )
 
 var (
@@ -73,51 +64,12 @@ func main() {
 	kingpin.Parse()
 	// Check if all flags legal.
 	checkFlag()
-
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *flagPort))
-	if err != nil {
-		log.Fatalf("failed to listen: %v\n", err)
-	}
-
-	err = check_permission.LoadPermission(*flagPermitFiles)
-	if err != nil {
-		log.Fatalf("error loading permission:%v\n", err)
-	}
-	// gRPC server.
-	var s *grpc.Server
+	var err error
 	if *flagSSL {
-		// Mutual authentication.
-		cert, err := tls.LoadX509KeyPair(*flagSSLCert, *flagSSLKey)
-		if err != nil {
-			log.Fatalf("can not load SSL credential:%v", err)
-		}
-		certPool := x509.NewCertPool()
-		credBytes, err := ioutil.ReadFile(*flagSSLCACert)
-		if err != nil {
-			log.Fatalf("can not load CA credential:%v", err)
-		}
-		certPool.AppendCertsFromPEM(credBytes)
-		cred := credentials.NewTLS(&tls.Config{
-			Certificates: []tls.Certificate{cert},
-			ClientAuth:   tls.RequireAndVerifyClientCert,
-			ClientCAs:    certPool,
-		})
-		s = grpc.NewServer(grpc.Creds(cred))
-		//if false {
-		//	cred, err := credentials.NewServerTLSFromFile(argSSLCertPath, argSSLKeyPath)
-		//	if err != nil {
-		//		log.Fatalf("can not load SSL credential:%v", err)
-		//	}
-		//	s = grpc.NewServer(grpc.Creds(cred))
-		//}
-
+		err = server.StartAndServeWithSSL(*flagPort, *flagPermitFiles, *flagSSLCert, *flagSSLKey, *flagSSLCACert)
 	} else {
-		s = grpc.NewServer()
+		err = server.StartAndServe(*flagPort, *flagPermitFiles)
 	}
-	service.RegisterGocalChargerServerServer(s, &server.Server{})
-	// reflection.Register(s)
-	fmt.Printf("gRPC serer running on %d\n", *flagPort)
-	err = s.Serve(listener)
 	if err != nil {
 		log.Fatalf("failed to serve: %v\n", err)
 	}
