@@ -32,6 +32,7 @@ func RunServer() {
 	r.GET("/api/configs", webApi.ApiConfigs)
 	r.GET("/api/configs/load", webApi.ApiConfigsLoad)
 	r.GET("/api/server/start", webApi.ApiServerStart)
+	r.GET("/api/client/command/say-hello", webApi.ApiClientSayHello)
 	r.Run(":3090")
 }
 

@@ -35,3 +35,18 @@ func ApiServerStart(c *gin.Context) {
 		})
 	}
 }
+
+func ApiClientSayHello(c *gin.Context) {
+	msg, err := ClientSayHello()
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"msg":   msg,
+			"error": "",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code":  "",
+			"error": err.Error(),
+		})
+	}
+}
