@@ -128,6 +128,12 @@
       const r = new XMLHttpRequest()
       r.open("GET", "/api/server/start")
       r.send()
+      r.onreadystatechange=function (){
+        if (r.readyState !== 4) {
+          return
+        }
+        console.log(r.responseText)
+      }
     }
 
     function stopServer() {

@@ -16,11 +16,16 @@ import (
 	"math"
 	"net"
 	"os"
+	"time"
 )
 
 type Server struct {
 	service.UnimplementedGocalChargerServerServer
 }
+
+var (
+	listener net.Listener
+)
 
 func (s *Server) SayHello(ctx context.Context, req *service.HelloRequest) (rsp *service.HelloReply, err error) {
 	rsp = &service.HelloReply{Message: "Hello " + req.Name}
@@ -70,6 +75,15 @@ func (s *Server) DownloadFile(req *service.DownloadFileRequest, stream service.G
 	return nil
 }
 
+func IsRunning() bool {
+	time.Sleep(time.Millisecond * 500)
+	if listener == nil {
+		return false
+	} else {
+		return true
+	}
+}
+
 func StartAndServe(port uint, permitConfig string) error {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -88,7 +102,8 @@ func StartAndServe(port uint, permitConfig string) error {
 }
 
 func StartAndServeWithSSL(port uint, permitConfig string, cert string, key string, caCert string) error {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	var err error
+	listener, err = net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
 	}
@@ -124,5 +139,11 @@ func StartAndServeWithSSL(port uint, permitConfig string, cert string, key strin
 	service.RegisterGocalChargerServerServer(s, &Server{})
 	// reflection.Register(s)
 	fmt.Printf("gRPC serer running on %d\n", port)
-	return s.Serve(listener)
+	go func() { err = s.Serve(listener) }()
+	time.Sleep(time.Second)
+	if !IsRunning() {
+		return err
+	} else {
+		return nil
+	}
 }
