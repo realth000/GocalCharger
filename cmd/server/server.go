@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"gocalcharger/api/service"
-	"gocalcharger/api/web"
 	"gocalcharger/server"
 	"gocalcharger/server/check_permission"
 	"gocalcharger/server/config"
@@ -116,7 +115,6 @@ func main() {
 		s = grpc.NewServer()
 	}
 	service.RegisterGocalChargerServerServer(s, &server.Server{})
-	go web.RunServer()
 	// reflection.Register(s)
 	fmt.Printf("gRPC serer running on %d\n", *flagPort)
 	err = s.Serve(listener)
