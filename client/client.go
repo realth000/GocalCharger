@@ -3,7 +3,9 @@ package client
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
+	"gocalcharger/client/say_hello"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -56,4 +58,16 @@ func DialSSLMutualAuth(ip string, port uint, cert string, key string, caCert str
 		},
 	})
 	return grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithTransportCredentials(cred))
+}
+
+func SayHello(conn *grpc.ClientConn, name string) (string, error) {
+	r, err := say_hello.SayHello(conn, name)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("error greeting: %v", err))
+	}
+	return r.Message, nil
+}
+
+func DownloadFile(conn *grpc.ClientConn, name string) {
+
 }

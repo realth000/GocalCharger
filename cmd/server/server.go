@@ -73,4 +73,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to serve: %v\n", err)
 	}
+	<-server.ServerCloseChan
 }

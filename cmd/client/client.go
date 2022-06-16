@@ -4,7 +4,6 @@ import (
 	"gocalcharger/client"
 	"gocalcharger/client/config"
 	"gocalcharger/client/file_download"
-	"gocalcharger/client/say_hello"
 	"google.golang.org/grpc"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
@@ -131,11 +130,11 @@ func main() {
 	}
 	switch kingpin.Parse() {
 	case "say-hello":
-		r, err := say_hello.SayHello(conn, name)
+		r, err := client.SayHello(conn, name)
 		if err != nil {
 			log.Fatalf("error greeting: %v\n", err)
 		}
-		log.Printf("successful greet: %s", r.Message)
+		log.Printf("successful greet: %s", r)
 	case "download-file":
 		wg := sync.WaitGroup{}
 		wg.Add(1)

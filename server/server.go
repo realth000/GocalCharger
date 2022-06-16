@@ -24,7 +24,9 @@ type Server struct {
 }
 
 var (
-	listener net.Listener
+	listener        net.Listener
+	s               *grpc.Server
+	ServerCloseChan = make(chan bool)
 )
 
 func (s *Server) SayHello(ctx context.Context, req *service.HelloRequest) (rsp *service.HelloReply, err error) {
@@ -128,7 +130,7 @@ func StartAndServeWithSSL(port uint, permitConfig string, cert string, key strin
 		ClientAuth:   tls.RequireAndVerifyClientCert,
 		ClientCAs:    certPool,
 	})
-	s := grpc.NewServer(grpc.Creds(cred))
+	s = grpc.NewServer(grpc.Creds(cred))
 	//if false {
 	//	cred, err := credentials.NewServerTLSFromFile(argSSLCertPath, argSSLKeyPath)
 	//	if err != nil {
@@ -145,5 +147,13 @@ func StartAndServeWithSSL(port uint, permitConfig string, cert string, key strin
 		return err
 	} else {
 		return nil
+	}
+}
+
+func Stop() {
+	if s != nil {
+		s.Stop()
+		s = nil
+		ServerCloseChan <- true
 	}
 }
