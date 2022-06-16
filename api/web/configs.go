@@ -16,3 +16,11 @@ func getConfigs() Configs {
 	c.ClientConfig = clientConfig.GetConfig()
 	return c
 }
+
+func reloadConfigs() Configs {
+	// TODO: Update load config path.
+	// TODO: Handle errors.
+	_ = serverConfig.LoadConfigFile(`./tests/data/config/server.toml`)
+	_ = clientConfig.LoadConfigFile(`./tests/data/config/client.toml`)
+	return getConfigs()
+}

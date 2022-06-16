@@ -78,6 +78,28 @@
       }
     }
 
+    function loadConfigFromDisk() {
+      const r = new XMLHttpRequest()
+      r.open("GET", "/api/configs/load")
+      r.send()
+      r.onreadystatechange=function (){
+        if (r.readyState !== 4) {
+          return
+        }
+        console.log(r.responseText)
+        const configs = JSON.parse(r.responseText)
+        const serverConfig = configs.configs.ServerConfig
+        const clientConfig = configs.configs.ClientConfig
+
+        if (serverConfig !== null) {
+          applyServerConfig(serverConfig)
+        }
+        if (clientConfig !== null) {
+          applyClientConfig(clientConfig)
+        }
+      }
+    }
+
     function applyServerConfig(config) {
       console.log("serverConfig", config)
       document.getElementById("numberServerPort").value = config.Port.toString()
@@ -107,6 +129,9 @@
 <div id="controls">
   <div>
     <button onclick="loadConfig()">Load configs</button>
+  </div>
+  <div>
+    <button onclick="loadConfigFromDisk()">Load configs form disk</button>
   </div>
 </div>
 <form action="" id="formServerSettings" accept-charset="UTF-8" method="post">
