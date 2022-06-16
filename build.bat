@@ -3,6 +3,8 @@ echo build cmd/server...
 go build --buildmode=exe -o GocalChargerServer.exe gocalcharger/cmd/server || goto fail
 echo build cmd/client...
 go build --buildmode=exe -o GocalChargerClient.exe gocalcharger/cmd/client || goto fail
+echo build cmd/web
+go build --buildmode=exe -o GocalChargerWeb.exe gocalcharger/cmd/web || goto fail
 echo done
 
 pause

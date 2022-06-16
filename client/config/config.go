@@ -19,11 +19,17 @@ type ClientConfig struct {
 	DownloadFilePath string `toml:"download_file_path"`
 }
 
-func LoadConfigFile(filePath string, clientConfig *ClientConfig) error {
+var cc = ClientConfig{}
+
+func GetConfig() ClientConfig {
+	return cc
+}
+
+func LoadConfigFile(filePath string) error {
 	configFile, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
-	err = toml.Unmarshal(configFile, clientConfig)
+	err = toml.Unmarshal(configFile, &cc)
 	return err
 }
