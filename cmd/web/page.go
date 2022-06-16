@@ -31,6 +31,7 @@ func RunServer() {
 	r.StaticFile("/settings", "./public/page/main.html")
 	r.GET("/api/configs", webApi.ApiConfigs)
 	r.GET("/api/configs/load", webApi.ApiConfigsLoad)
+	r.GET("/api/server/start", webApi.ApiServerStart)
 	r.Run(":3090")
 }
 

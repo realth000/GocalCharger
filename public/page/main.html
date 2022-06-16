@@ -122,16 +122,57 @@
       document.getElementById("checkboxClientCACertPath").value = config.SSLCACert
       ClientUpdateSSLState()
     }
+
+    // Controls
+    function startServer() {
+      const r = new XMLHttpRequest()
+      r.open("GET", "/api/server/start")
+      r.send()
+    }
+
+    function stopServer() {
+      const r = new XMLHttpRequest()
+      r.open("GET", "/api/server/stop")
+      r.send()
+    }
+
+    function clientSayHello() {
+      const r = new XMLHttpRequest()
+      r.open("GET", "/api/client/command/say-hello")
+      r.send()
+      r.onreadystatechange=function (){
+        if (r.readyState !== 4) {
+          return
+        }
+        console.log(r.responseText)
+      }
+    }
+
+    function clientDownloadFile() {
+      const r = new XMLHttpRequest()
+      r.open("GET", "/api/client/command/download-file")
+      r.send()
+    }
   </script>
 </head>
 <body onload="InitState()">
 <div id="app"></div>
 <div id="controls">
-  <div>
-    <button onclick="loadConfig()">Load configs</button>
+  <div id="configControl">
+    <div>
+      <button onclick="loadConfig()">Load configs</button>
+    </div>
+    <div>
+      <button onclick="loadConfigFromDisk()">Load configs form disk</button>
+    </div>
   </div>
-  <div>
-    <button onclick="loadConfigFromDisk()">Load configs form disk</button>
+  <div id="serverControl">
+    <button onclick="startServer()">Start server</button>
+    <button onclick="stopServer()">Stop server</button>
+  </div>
+  <div id="clientControl">
+    <button onclick="clientSayHello()">Client say hello</button>
+    <button onclick="clientDownloadFile()">Client download file</button>
   </div>
 </div>
 <form action="" id="formServerSettings" accept-charset="UTF-8" method="post">

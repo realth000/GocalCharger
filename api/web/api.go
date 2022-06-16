@@ -20,3 +20,18 @@ func ApiConfigsLoad(c *gin.Context) {
 		"configs": reloadConfigs(),
 	})
 }
+
+func ApiServerStart(c *gin.Context) {
+	err := startServer()
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":  0,
+			"error": "",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code":  1,
+			"error": err.Error(),
+		})
+	}
+}

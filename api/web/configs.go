@@ -10,11 +10,12 @@ type Configs struct {
 	ClientConfig clientConfig.ClientConfig
 }
 
+var loadedConfigs Configs
+
 func getConfigs() Configs {
-	var c = Configs{}
-	c.ServerConfig = serverConfig.GetConfig()
-	c.ClientConfig = clientConfig.GetConfig()
-	return c
+	loadedConfigs.ServerConfig = serverConfig.GetConfig()
+	loadedConfigs.ClientConfig = clientConfig.GetConfig()
+	return loadedConfigs
 }
 
 func reloadConfigs() Configs {
